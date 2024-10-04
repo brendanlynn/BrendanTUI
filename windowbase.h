@@ -1,80 +1,100 @@
 #pragma once
 
-#include <string>
+#include <chrono>
+#include <concepts>
 #include <functional>
+#include <mutex>
+#include <string>
+#include <thread>
 #include <windows.h>
 
 namespace btui {
     struct BufferGridCell {
-        char character;
+        wchar_t character;
         uint32_t forecolor;
         uint32_t backcolor;
     };
 
-    class WindowBase {
-    private:
-        // ?
+    struct BufferSize {
+        uint32_t width;
+        uint32_t height;
+
+        bool operator==(const BufferSize& Other) const {
+            return width == Other.width && height == Other.height;
+        }
+        bool operator!=(const BufferSize& Other) const {
+            return width != Other.width || height != Other.height;
+        }
+    };
+
+    using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
+
+    namespace details {
+        struct WindowBaseEq {
+            HWND hwnd;
+            HINSTANCE hInstance;
+
+            std::mutex mtx;
+            std::thread updateThread;
+
+            bool allowTransparentBackgrounds;
+            BufferGridCell* buffer;
+            btui::BufferSize lastBufferSize;
+            paintChars_t paintFunc;
+        };
+    }
+
+    class WindowBase : private details::WindowBaseEq {
     public:
         // These functions initialize a window. By
         // default, the window is hidden (not
         // visible).
 
         WindowBase();
-        WindowBase(std::string Title);
+
+        // The HWND of the window.s
+
+        HWND GetHwnd();
+
+        // The width and height of the buffer, as
+        // well as functionality to copy it out.
+
+        btui::BufferSize BufferSize();
+        BufferGridCell* CopyBufferOut();
+        bool CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer);
+
+        // Functions for painting and invalidation of
+        // the client area.
+
+        paintChars_t GetPaintFunc();
+        void SetPaintFunc(paintChars_t PaintFunc);
+        void Invalidate();
 
         // The window is visible if the computer's
         // user may view it. Show() makes it visible
         // to the user, and also gives it focus.
         // Hide() hides it from the user.
 
-        bool IsVisible();
+        bool IsVisible() const;
         void Show();
         void Hide();
 
         // The following three are self-explanitory.
 
-        bool IsMinimized();
-        bool IsMaximized();
-        bool HasFocus();
+        bool IsMinimized() const;
+        bool IsMaximized() const;
+        bool HasFocus() const;
 
         // The following three are also self-explanitory.
 
         void Minimize();
         void Maximize();
-        bool GetFocus();
+        void CaptureFocus();
 
         // The title of the window
 
-        std::string GetTitle();
-        void SetTitle(std::string Title);
-
-        // These are the widths and heights of the buffers.
-
-        uint32_t GetBufferWidth();
-        uint32_t GetBufferHeight();
-
-        // The back buffer is the buffer the programmer
-        // is allowed to write to. The front buffer is
-        // what is currently displayed. When WriteBuffer()
-        // is called, the back and front buffer is
-        // switched, and the characters in the new front
-        // buffer (previously the back buffer) are now
-        // written to the screen.
-        //
-        // The buffers are in row-major order and their
-        // length is equal to the product of
-        // GetBufferWidth() and GetBufferHeight().
-
-        BufferGridCell* GetBackBuffer();
-        const BufferGridCell* GetFrontBuffer();
-        void WriteBuffer();
-
-        // Gets the position of the cursor by buffer row
-        // and column (column first). If the cursor is
-        // not within the window, this returns ~0 for
-        // both.
-
-        std::pair<uint32_t, uint32_t> GetCursorPos();
+        std::wstring GetTitle() const;
+        void SetTitle(std::wstring Title);
 
         // Maybe some event handers? Clicks? Double
         // clicks? Scrolling? Key presses? Resizing?
