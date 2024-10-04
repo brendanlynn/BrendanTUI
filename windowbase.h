@@ -29,22 +29,19 @@ namespace btui {
 
     using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
 
-    namespace details {
-        struct WindowBaseEq {
-            HWND hwnd;
-            HINSTANCE hInstance;
+    class WindowBase {
+        HWND hwnd;
+        HINSTANCE hInstance;
 
-            std::mutex mtx;
-            std::thread updateThread;
+        std::mutex mtx;
+        std::thread updateThread;
 
-            bool allowTransparentBackgrounds;
-            BufferGridCell* buffer;
-            btui::BufferSize lastBufferSize;
-            paintChars_t paintFunc;
-        };
-    }
+        bool allowTransparentBackgrounds;
+        BufferGridCell* buffer;
+        btui::BufferSize lastBufferSize;
+        paintChars_t paintFunc;
 
-    class WindowBase : private details::WindowBaseEq {
+        void UpdateFunction();
     public:
         // These functions initialize a window. By
         // default, the window is hidden (not

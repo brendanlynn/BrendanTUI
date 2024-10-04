@@ -4,20 +4,19 @@
 #include "windowbase.h"
 #include <exception>
 
-void updateFunction(btui::WindowBase* WinBaseP) {
-    btui::WindowBase& winBase = *WinBaseP;
-    btui::details::WindowBaseEq& winBaseEq = *(btui::details::WindowBaseEq*)WinBaseP;
-    MSG msg;
-    while (GetMessageW(&msg, winBaseEq.hwnd, 0, 0)) {
-        switch (msg.message) {
-            // stuff
-        }
-    }
-}
 
 namespace btui {
+    void WindowBase::UpdateFunction() {
+        MSG msg;
+        while (GetMessageW(&msg, hwnd, 0, 0)) {
+            switch (msg.message) {
+                // stuff
+            }
+        }
+    }
+
     WindowBase::WindowBase() {
-        updateThread = std::thread(updateFunction, this);
+        updateThread = std::thread(UpdateFunction);
     }
 
     HWND WindowBase::GetHwnd() {
