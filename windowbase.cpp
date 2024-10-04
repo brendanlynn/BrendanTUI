@@ -10,13 +10,22 @@ namespace btui {
         MSG msg;
         while (GetMessageW(&msg, hwnd, 0, 0)) {
             switch (msg.message) {
-                // stuff
+                //stuff
+            }
+            if (stopThread) {
+                //stuff (presumably)
+                return;
             }
         }
     }
 
     WindowBase::WindowBase() {
         updateThread = std::thread(UpdateFunction);
+    }
+    WindowBase::~WindowBase() {
+        stopThread = true;
+        updateThread.join();
+        //stuff
     }
 
     HWND WindowBase::GetHwnd() {

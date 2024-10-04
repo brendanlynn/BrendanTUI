@@ -35,6 +35,7 @@ namespace btui {
 
         std::mutex mtx;
         std::thread updateThread;
+        bool stopThread;
 
         bool allowTransparentBackgrounds;
         BufferGridCell* buffer;
@@ -43,11 +44,12 @@ namespace btui {
 
         void UpdateFunction();
     public:
-        // These functions initialize a window. By
-        // default, the window is hidden (not
-        // visible).
+        // These functions initialize or dispose
+        // a window. By default, the window is
+        // hidden (not visible).
 
         WindowBase();
+        ~WindowBase();
 
         // The HWND of the window.s
 
