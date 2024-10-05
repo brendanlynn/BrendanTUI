@@ -185,6 +185,9 @@ namespace btui {
 
         std::wstring GetTitle() const;
         void SetTitle(std::wstring Title);
+
+        bool GetAllowTransparentBackgrounds();
+        void SetAllowTransparentBackgrounds(bool Allow);
     protected:
         // Events
 

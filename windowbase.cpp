@@ -203,4 +203,15 @@ namespace btui {
             ::SetWindowTextW(hwnd, Title.c_str());
         }
     }
+
+    bool WindowBase::GetAllowTransparentBackgrounds() {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        return allowTransparentBackgrounds;
+    }
+    void WindowBase::SetAllowTransparentBackgrounds(bool Allow) {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        allowTransparentBackgrounds = Allow;
+    }
 }
