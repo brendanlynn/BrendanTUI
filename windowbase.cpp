@@ -4,6 +4,7 @@
 #include "windowbase.h"
 #include <combaseapi.h>
 #include <exception>
+#include <shellapi.h>
 
 constexpr uint32_t charWidth = 10; //placeholder
 constexpr uint32_t charHeight = 15; //placeholder
@@ -94,6 +95,29 @@ namespace btui {
 
             return 0;
         }
+        case WM_DROPFILES: {
+            HDROP hDrop = (HDROP)WParam;
+            FileDropInfo dropInfo;
+            UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
+            dropInfo.filePaths.resize(fileCount);
+
+            for (UINT i = 0; i < fileCount; ++i) {
+                wchar_t filePath[MAX_PATH];
+                DragQueryFile(hDrop, i, filePath, MAX_PATH);
+                dropInfo.filePaths[i] = filePath;
+            }
+
+            POINT pt;
+            DragQueryPoint(hDrop, &pt);
+            ScreenToClient(hwnd, &pt);
+            dropInfo.mouseX = pt.x / charWidth; // Convert to character column
+            dropInfo.mouseY = pt.y / charHeight; // Convert to character row
+
+            OnFileDrop(dropInfo);
+            DragFinish(hDrop);
+            return 0;
+        }
+
         case WM_EXITSIZEMOVE: {
             ResizeCompleteInfo info;
             RECT rect;
