@@ -27,6 +27,12 @@ namespace btui {
         }
     };
 
+    enum WindowState {
+        Minimized,
+        Maximized,
+        Restored
+    };
+
     struct KeyPressInfo {
         wchar_t keyChar;
         uint32_t keyCode;
@@ -40,9 +46,49 @@ namespace btui {
         bool leftButton;
         bool rightButton;
     };
+    struct MouseMoveInfo {
+        uint32_t x;
+        uint32_t y;
+    };
+    struct MouseDragInfo {
+        uint32_t startX;
+        uint32_t startY;
+        uint32_t endX;
+        uint32_t endY;
+        bool leftButton;
+        bool rightButton;
+    };
+    struct MouseScrollInfo {
+        int32_t scrollAmount;
+    };
+    struct CloseRequestInfo {
+        bool canCancel;
+    };
+    struct TextInputInfo {
+        std::wstring inputText;
+    };
+    struct FocusGainedInfo { };
+    struct FocusLostInfo { };
+    struct WindowStateChangeInfo {
+        WindowState newWindowState;
+    };
+    struct IdleInfo {
+        std::chrono::milliseconds idleDuration;
+    };
     struct ResizeInfo {
         uint32_t newWidth;
         uint32_t newHeight;
+    };
+    struct ResizeCompleteInfo {
+        uint32_t newWidth;
+        uint32_t newHeight;
+    };
+    struct ClipboardCopyInfo { };
+    struct ClipboardPasteInfo {
+        std::wstring pastedText;
+    };
+    struct FileDropInfo {
+        std::vector<std::wstring> filePaths;
     };
 
     using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
@@ -120,13 +166,13 @@ namespace btui {
         void Show();
         void Hide();
 
-        // The following three are self-explanitory.
+        // The following three are self-explainatory.
 
         bool IsMinimized() const;
         bool IsMaximized() const;
         bool HasFocus() const;
 
-        // The following three are also self-explanitory.
+        // The following three are also self-explainatory.
 
         void Minimize();
         void Maximize();
@@ -137,8 +183,23 @@ namespace btui {
         std::wstring GetTitle() const;
         void SetTitle(std::wstring Title);
     protected:
-        virtual void OnResize(const ResizeInfo& Info);
-        virtual void OnMouseClick(const MouseClickInfo& Info);
+        // Events
+
         virtual void OnKeyPress(const KeyPressInfo& Info);
+        virtual void OnMouseClick(const MouseClickInfo& Info);
+        virtual void OnMouseMove(const MouseMoveInfo& Info);
+        virtual void OnMouseDrag(const MouseDragInfo& Info);
+        virtual void OnMouseScroll(const MouseScrollInfo& Info);
+        virtual void OnTextInput(const TextInputInfo& Info);
+        virtual void OnFocusGained(const FocusGainedInfo& Info);
+        virtual void OnFocusLost(const FocusLostInfo& Info);
+        virtual bool OnCloseRequest(const CloseRequestInfo& Info);
+        virtual void OnWindowStateChange(const WindowStateChangeInfo& Info);
+        virtual void OnResize(const ResizeInfo& Info);
+        virtual void OnResizeComplete(const ResizeCompleteInfo& Info);
+        virtual void OnIdle(const IdleInfo& Info);
+        virtual void OnFileDrop(const FileDropInfo& Info);
+        virtual void OnClipboardCopy(const ClipboardCopyInfo& Info);
+        virtual void OnClipboardPaste(const ClipboardPasteInfo& Info);
     };
 }
