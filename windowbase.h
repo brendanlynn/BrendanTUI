@@ -27,6 +27,17 @@ namespace btui {
         }
     };
 
+    struct KeyPressInfo {
+        wchar_t keyChar;  // Character representation (if applicable)
+        uint32_t keyCode; // Virtual key code
+        bool shiftPressed;
+        bool ctrlPressed;
+        bool altPressed;
+
+        KeyPressInfo()
+            : keyChar(0), keyCode(0), shiftPressed(false), ctrlPressed(false), altPressed(false) { }
+    };
+
     using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
 
     class WindowBase;
