@@ -5,6 +5,9 @@
 #include <combaseapi.h>
 #include <exception>
 
+constexpr uint32_t charWidth = 10; //placeholder
+constexpr uint32_t charHeight = 15; //placeholder
+
 std::wstring GenerateGuidStr() {
     GUID guid;
     CoCreateGuid(&guid);
@@ -17,7 +20,6 @@ std::wstring GenerateGuidStr() {
 
     return std::wstring(buffer);
 }
-
 
 LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
     btui::details::WindowProcCallStruct* funcWCont = reinterpret_cast<btui::details::WindowProcCallStruct*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
@@ -78,8 +80,8 @@ namespace btui {
         ::GetWindowRect(hwnd, &rect);
 
         btui::BufferSize bufSize;
-        bufSize.width = (rect.right - rect.left) / 10; //placeholder
-        bufSize.height = (rect.bottom - rect.top) / 15; //placeholder
+        bufSize.width = (rect.right - rect.left) / charWidth;
+        bufSize.height = (rect.bottom - rect.top) / charHeight;
         return bufSize;
     }
     BufferGridCell* WindowBase::CopyBufferOut() {
