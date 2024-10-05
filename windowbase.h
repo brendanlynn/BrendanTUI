@@ -46,20 +46,20 @@ namespace btui {
         bool altPressed;
     };
     struct MouseClickInfo {
-        uint32_t x;
-        uint32_t y;
+        uint32_t x; //column of the char clicked
+        uint32_t y; //row of the char clicked
         bool leftButton;
         bool rightButton;
     };
     struct MouseMoveInfo {
-        uint32_t x;
-        uint32_t y;
+        uint32_t x; //column of the char moved to
+        uint32_t y; //row of the char moved to
     };
     struct MouseDragInfo {
-        uint32_t startX;
-        uint32_t startY;
-        uint32_t endX;
-        uint32_t endY;
+        uint32_t startX; //column of the char the mouse started at
+        uint32_t startY; //row of the char the mouse started at
+        uint32_t endX; //column of the char the mouse ended at
+        uint32_t endY; //row of the char the mouse ended at
         bool leftButton;
         bool rightButton;
     };
@@ -81,12 +81,12 @@ namespace btui {
         std::chrono::milliseconds idleDuration;
     };
     struct ResizeInfo {
-        uint32_t newWidth;
-        uint32_t newHeight;
+        uint32_t newWidth; //count of characters, *not pixels*
+        uint32_t newHeight; //count of characters, *not pixels*
     };
     struct ResizeCompleteInfo {
-        uint32_t newWidth;
-        uint32_t newHeight;
+        uint32_t newWidth; //count of characters, *not pixels*
+        uint32_t newHeight; //count of characters, *not pixels*
     };
     struct ClipboardCopyInfo { };
     struct ClipboardPasteInfo {
