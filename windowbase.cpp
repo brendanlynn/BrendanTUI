@@ -83,8 +83,15 @@ namespace btui {
     }
     WindowBase::~WindowBase() {
         stopThread = true;
-        updateThread.join();
-        //stuff
+        if (updateThread.joinable())
+            updateThread.join();
+
+        if (hwnd) DestroyWindow(hwnd);
+
+        delete[] lastBuffer;
+        lastBuffer = 0;
+
+        UnregisterClassW(className.c_str(), hInstance);
     }
 
     HWND WindowBase::GetHwnd() {
