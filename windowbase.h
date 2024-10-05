@@ -28,6 +28,7 @@ namespace btui {
     };
 
     enum WindowState {
+        Hidden,
         Minimized,
         Maximized,
         Restored
