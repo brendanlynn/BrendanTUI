@@ -50,7 +50,6 @@ namespace btui {
 
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
-            //TODO: OnWindowStateChange
         case WM_KEYDOWN: {
             KeyPressInfo info;
             info.keyChar = static_cast<wchar_t>(WParam);
