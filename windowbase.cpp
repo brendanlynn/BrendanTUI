@@ -139,7 +139,15 @@ namespace btui {
         return hwnd && ::IsZoomed(hwnd);
     }
     WindowState WindowBase::GetState() const {
-        //something
+        if (IsMinimized()) {
+            return WindowState::Minimized;
+        }
+        else if (IsMaximized()) {
+            return WindowState::Maximized;
+        }
+        else {
+            return WindowState::Restored;
+        }
     }
     bool WindowBase::HasFocus() const {
         return hwnd && ::GetFocus() == hwnd;
@@ -156,10 +164,22 @@ namespace btui {
         }
     }
     void WindowBase::Restore() {
-        //something
+        if (hwnd) {
+            ::ShowWindow(hwnd, SW_RESTORE);
+        }
     }
     void WindowBase::SetState(WindowState State) {
-        //something
+        switch (State) {
+        case WindowState::Minimized:
+            Minimize();
+            break;
+        case WindowState::Maximized:
+            Maximize();
+            break;
+        case WindowState::Restored:
+            Restore();
+            break;
+        }
     }
     void WindowBase::CaptureFocus() {
         if (hwnd) {
