@@ -51,10 +51,15 @@ namespace btui {
         WindowBase();
         ~WindowBase();
 
-        // Deleting all copy stuff
+        // Deleting all copy stuff.
 
         WindowBase(const WindowBase&) = delete;
         WindowBase& operator=(const WindowBase&) = delete;
+
+        // Deleting all move stuff (too many pointers pointing back).
+
+        WindowBase(WindowBase&&) = delete;
+        WindowBase& operator=(WindowBase&&) = delete;
 
         // The HWND of the window.
 
