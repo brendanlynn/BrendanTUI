@@ -195,7 +195,7 @@ namespace btui {
         // Client repaint (buffer should be in
         // row-major order).
 
-        virtual void PaintChars(uint32_t Width, uint32_t Height, wchar_t* Buffer) = 0;
+        virtual void PaintBuffer(uint32_t Width, uint32_t Height, BufferGridCell* Buffer) = 0;
 
         // Events
 
