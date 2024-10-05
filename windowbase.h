@@ -69,9 +69,6 @@ namespace btui {
     struct WindowStateChangeInfo {
         WindowState newWindowState;
     };
-    struct IdleInfo {
-        std::chrono::milliseconds idleDuration;
-    };
     struct ResizeInfo {
         uint32_t newWidth; //count of characters, *not pixels*
         uint32_t newHeight; //count of characters, *not pixels*
@@ -198,7 +195,6 @@ namespace btui {
         virtual void OnWindowStateChange(const WindowStateChangeInfo& Info) { };
         virtual void OnResize(const ResizeInfo& Info) { };
         virtual void OnResizeComplete(const ResizeCompleteInfo& Info) { };
-        virtual void OnIdle(const IdleInfo& Info) { };
         virtual void OnFileDrop(const FileDropInfo& Info) { };
     };
 }
