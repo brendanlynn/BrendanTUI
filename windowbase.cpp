@@ -65,9 +65,14 @@ namespace btui {
         }
         case WM_LBUTTONDOWN:
         case WM_RBUTTONDOWN: {
+            POINT mousePt;
+            mousePt.x = GetLParamX(LParam);
+            mousePt.y = GetLParamY(LParam);
+            ScreenToClient(hwnd, &mousePt);
+
             MouseClickInfo info;
-            info.x = GetLParamX(LParam);
-            info.y = GetLParamY(LParam);
+            info.x = mousePt.x / charWidth;
+            info.y = mousePt.y / charWidth;
             info.leftButton = (Msg == WM_LBUTTONDOWN);
             info.rightButton = (Msg == WM_RBUTTONDOWN);
 
@@ -75,9 +80,14 @@ namespace btui {
             return 0;
         }
         case WM_MOUSEMOVE: {
+            POINT mousePt;
+            mousePt.x = GetLParamX(LParam);
+            mousePt.y = GetLParamY(LParam);
+            ScreenToClient(hwnd, &mousePt);
+
             MouseMoveInfo info;
-            info.x = GetLParamX(LParam);
-            info.y = GetLParamY(LParam);
+            info.x = mousePt.x / charWidth;
+            info.y = mousePt.y / charWidth;
 
             OnMouseMove(info);
             return 0;
