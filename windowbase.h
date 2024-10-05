@@ -88,10 +88,6 @@ namespace btui {
         uint32_t newWidth; //count of characters, *not pixels*
         uint32_t newHeight; //count of characters, *not pixels*
     };
-    struct ClipboardCopyInfo { };
-    struct ClipboardPasteInfo {
-        std::wstring pastedText;
-    };
     struct FileDropInfo {
         std::vector<std::wstring> filePaths;
     };
