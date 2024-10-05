@@ -79,6 +79,8 @@ namespace btui {
     };
     struct FileDropInfo {
         std::vector<std::wstring> filePaths;
+        uint32_t mouseX; //column of the char the mouse was on when it dropped the file
+        uint32_t mouseY; //row of the char the mouse was on when it dropped the file
     };
 
     class WindowBase;
