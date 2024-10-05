@@ -55,14 +55,6 @@ namespace btui {
         uint32_t x; //column of the char moved to
         uint32_t y; //row of the char moved to
     };
-    struct MouseDragInfo {
-        uint32_t startX; //column of the char the mouse started at
-        uint32_t startY; //row of the char the mouse started at
-        uint32_t endX; //column of the char the mouse ended at
-        uint32_t endY; //row of the char the mouse ended at
-        bool leftButton;
-        bool rightButton;
-    };
     struct MouseScrollInfo {
         int32_t scrollAmount;
     };
