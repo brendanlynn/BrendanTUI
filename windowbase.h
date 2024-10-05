@@ -184,6 +184,10 @@ namespace btui {
         std::wstring GetTitle() const;
         void SetTitle(std::wstring Title);
 
+        // Disabling transparent backgrounds increases
+        // efficiency. But if the user wants them,
+        // okey dokey. It's simple enough to implement.
+
         bool GetAllowTransparentBackgrounds();
         void SetAllowTransparentBackgrounds(bool Allow);
     protected:
