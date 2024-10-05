@@ -142,8 +142,8 @@ namespace btui {
             ResizeCompleteInfo info;
             RECT rect;
             ::GetWindowRect(hwnd, &rect);
-            info.newWidth = rect.right - rect.left;
-            info.newHeight = rect.bottom - rect.top;
+            info.newWidth = (rect.right - rect.left) / charWidth;
+            info.newHeight = (rect.bottom - rect.top) / charHeight;
 
             OnResizeComplete(info);
 
