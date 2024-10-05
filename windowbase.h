@@ -19,6 +19,9 @@ namespace btui {
         uint32_t width;
         uint32_t height;
 
+        BufferSize(uint32_t Width, uint32_t Height)
+            : width(Width), height(Height) { }
+
         bool operator==(const BufferSize& Other) const {
             return width == Other.width && height == Other.height;
         }
@@ -92,8 +95,6 @@ namespace btui {
         std::vector<std::wstring> filePaths;
     };
 
-    using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
-
     class WindowBase;
 
     namespace details {
@@ -116,9 +117,8 @@ namespace btui {
         std::unique_ptr<details::WindowProcCallStruct> callStructPtr;
 
         bool allowTransparentBackgrounds;
-        BufferGridCell* buffer;
+        BufferGridCell* lastBuffer;
         btui::BufferSize lastBufferSize;
-        paintChars_t paintFunc;
 
         void UpdateFunction();
         LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
@@ -151,11 +151,8 @@ namespace btui {
         BufferGridCell* CopyBufferOut();
         bool CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer);
 
-        // Functions for painting and invalidation of
-        // the client area.
+        // Invalidates the client area for redrawing.
 
-        paintChars_t GetPaintFunc();
-        void SetPaintFunc(paintChars_t PaintFunc);
         void Invalidate();
 
         // The window is visible if the computer's
@@ -190,6 +187,11 @@ namespace btui {
         bool GetAllowTransparentBackgrounds();
         void SetAllowTransparentBackgrounds(bool Allow);
     protected:
+        // Client repaint (buffer should be in
+        // row-major order.
+
+        virtual void PaintChars(uint32_t Width, uint32_t Height, wchar_t* Buffer) = 0;
+
         // Events
 
         virtual void OnKeyPress(const KeyPressInfo& Info) { };
