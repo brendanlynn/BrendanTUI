@@ -105,7 +105,7 @@ namespace btui {
 
         btui::BufferSize bufSize = lastBufferSize;
         BufferGridCell* outBuffer = new BufferGridCell[bufSize.width * bufSize.height];
-        memcpy(outBuffer, buffer, sizeof(BufferGridCell) * bufSize.width * bufSize.height);
+        memcpy(outBuffer, lastBuffer, sizeof(BufferGridCell) * bufSize.width * bufSize.height);
 
         return outBuffer;
     }
@@ -114,21 +114,11 @@ namespace btui {
 
         if (lastBufferSize != BufferSize) return false;
 
-        memcpy(Buffer, buffer, sizeof(BufferGridCell) * BufferSize.width * BufferSize.height);
+        memcpy(Buffer, lastBuffer, sizeof(BufferGridCell) * BufferSize.width * BufferSize.height);
 
         return true;
     }
 
-    paintChars_t WindowBase::GetPaintFunc() {
-        std::lock_guard<std::mutex> lock(mtx);
-
-        return paintFunc;
-    }
-    void WindowBase::SetPaintFunc(paintChars_t PaintFunc) {
-        std::lock_guard<std::mutex> lock(mtx);
-
-        paintFunc = PaintFunc;
-    }
     void WindowBase::Invalidate() {
         ::InvalidateRect(hwnd, NULL, allowTransparentBackgrounds ? TRUE : FALSE);
     }

@@ -19,6 +19,7 @@ namespace btui {
         uint32_t width;
         uint32_t height;
 
+        BufferSize() = default;
         BufferSize(uint32_t Width, uint32_t Height)
             : width(Width), height(Height) { }
 
