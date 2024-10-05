@@ -28,14 +28,21 @@ namespace btui {
     };
 
     struct KeyPressInfo {
-        wchar_t keyChar;  // Character representation (if applicable)
-        uint32_t keyCode; // Virtual key code
+        wchar_t keyChar;
+        uint32_t keyCode;
         bool shiftPressed;
         bool ctrlPressed;
         bool altPressed;
-
-        KeyPressInfo()
-            : keyChar(0), keyCode(0), shiftPressed(false), ctrlPressed(false), altPressed(false) { }
+    };
+    struct MouseClickInfo {
+        uint32_t x;
+        uint32_t y;
+        bool leftButton;
+        bool rightButton;
+    };
+    struct ResizeInfo {
+        uint32_t newWidth;
+        uint32_t newHeight;
     };
 
     using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
@@ -129,10 +136,9 @@ namespace btui {
 
         std::wstring GetTitle() const;
         void SetTitle(std::wstring Title);
-
-        // Maybe some event handers? Clicks? Double
-        // clicks? Scrolling? Key presses? Resizing?
-        // Resizing is probably the most important. Then
-        // keyboard and mouse stuff.
+    protected:
+        virtual void OnResize(const ResizeInfo& Info);
+        virtual void OnMouseClick(const MouseClickInfo& Info);
+        virtual void OnKeyPress(const KeyPressInfo& Info);
     };
 }
