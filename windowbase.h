@@ -188,21 +188,21 @@ namespace btui {
     protected:
         // Events
 
-        virtual void OnKeyPress(const KeyPressInfo& Info);
-        virtual void OnMouseClick(const MouseClickInfo& Info);
-        virtual void OnMouseMove(const MouseMoveInfo& Info);
-        virtual void OnMouseDrag(const MouseDragInfo& Info);
-        virtual void OnMouseScroll(const MouseScrollInfo& Info);
-        virtual void OnTextInput(const TextInputInfo& Info);
-        virtual void OnFocusGained(const FocusGainedInfo& Info);
-        virtual void OnFocusLost(const FocusLostInfo& Info);
-        virtual bool OnCloseRequest(const CloseRequestInfo& Info);
-        virtual void OnWindowStateChange(const WindowStateChangeInfo& Info);
-        virtual void OnResize(const ResizeInfo& Info);
-        virtual void OnResizeComplete(const ResizeCompleteInfo& Info);
-        virtual void OnIdle(const IdleInfo& Info);
-        virtual void OnFileDrop(const FileDropInfo& Info);
-        virtual void OnClipboardCopy(const ClipboardCopyInfo& Info);
-        virtual void OnClipboardPaste(const ClipboardPasteInfo& Info);
+        virtual void OnKeyPress(const KeyPressInfo& Info) { };
+        virtual void OnMouseClick(const MouseClickInfo& Info) { };
+        virtual void OnMouseMove(const MouseMoveInfo& Info) { };
+        virtual void OnMouseDrag(const MouseDragInfo& Info) { };
+        virtual void OnMouseScroll(const MouseScrollInfo& Info) { };
+        virtual void OnTextInput(const TextInputInfo& Info) { };
+        virtual void OnFocusGained(const FocusGainedInfo& Info) { };
+        virtual void OnFocusLost(const FocusLostInfo& Info) { };
+        virtual bool OnCloseRequest(const CloseRequestInfo& Info) { };
+        virtual void OnWindowStateChange(const WindowStateChangeInfo& Info) { };
+        virtual void OnResize(const ResizeInfo& Info) { };
+        virtual void OnResizeComplete(const ResizeCompleteInfo& Info) { };
+        virtual void OnIdle(const IdleInfo& Info) { };
+        virtual void OnFileDrop(const FileDropInfo& Info) { };
+        virtual void OnClipboardCopy(const ClipboardCopyInfo& Info) { };
+        virtual void OnClipboardPaste(const ClipboardPasteInfo& Info) { };
     };
 }
