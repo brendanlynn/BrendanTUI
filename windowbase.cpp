@@ -2,25 +2,66 @@
 #include "framework.h"
 
 #include "windowbase.h"
+#include <combaseapi.h>
 #include <exception>
 
+std::wstring GenerateGuidStr() {
+    GUID guid;
+    CoCreateGuid(&guid);
+
+    wchar_t buffer[40];
+    swprintf_s(buffer, sizeof(buffer), L"{%08x-%04x-%04x-%04x-%012llx}",
+        guid.Data1, guid.Data2, guid.Data3,
+        (guid.Data4[0] << 8) | guid.Data4[1],
+        *(reinterpret_cast<unsigned long long*>(&guid.Data4[2])));
+
+    return std::wstring(buffer);
+}
+
+
+LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
+    btui::details::WindowProcCallStruct* funcWCont = reinterpret_cast<btui::details::WindowProcCallStruct*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
+
+    return (funcWCont->classPtr->*(funcWCont->funcPtr))(Hwnd, Msg, WParam, LParam);
+}
+
+void CallUpdateFunction(void (btui::WindowBase::* UpdateFunc)(), btui::WindowBase* Class) {
+    (Class->*UpdateFunc)();
+}
 
 namespace btui {
     void WindowBase::UpdateFunction() {
         MSG msg;
         while (GetMessageW(&msg, hwnd, 0, 0)) {
-            switch (msg.message) {
-                //stuff
-            }
-            if (stopThread) {
-                //stuff (presumably)
-                return;
-            }
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
         }
     }
 
-    WindowBase::WindowBase() {
-        updateThread = std::thread(UpdateFunction);
+    LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
+        switch (Msg) {
+            // stuff
+        }
+    }
+
+    WindowBase::WindowBase(HINSTANCE HInstance) {
+        hInstance = HInstance;
+        className = GenerateGuidStr();
+
+        WNDCLASS wc;
+        wc.hInstance = HInstance;
+        wc.lpszClassName = className.c_str();
+        wc.lpfnWndProc = WindowProcStatic;
+
+        details::WindowProcCallStruct callStr;
+        callStr.classPtr = this;
+        callStr.funcPtr = WindowProc;
+        callStructPtr = std::make_unique<details::WindowProcCallStruct>(callStr);
+
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
+        updateThread = std::thread(CallUpdateFunction, &WindowBase::UpdateFunction, this);
+
+        //incomplete: many other variables are uninitialized
     }
     WindowBase::~WindowBase() {
         stopThread = true;

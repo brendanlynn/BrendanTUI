@@ -29,13 +29,26 @@ namespace btui {
 
     using paintChars_t = std::function<void(uint32_t Width, uint32_t Height, wchar_t* Buffer)>;
 
+    class WindowBase;
+
+    namespace details {
+        using windowProcMemberFunc_t = LRESULT(btui::WindowBase::*)(HWND, UINT, WPARAM, LPARAM);
+
+        struct WindowProcCallStruct {
+            btui::WindowBase* classPtr;
+            windowProcMemberFunc_t funcPtr;
+        };
+    }
+
     class WindowBase {
         HWND hwnd;
         HINSTANCE hInstance;
+        std::wstring className;
 
         std::mutex mtx;
         std::thread updateThread;
         bool stopThread;
+        std::unique_ptr<details::WindowProcCallStruct> callStructPtr;
 
         bool allowTransparentBackgrounds;
         BufferGridCell* buffer;
@@ -43,12 +56,13 @@ namespace btui {
         paintChars_t paintFunc;
 
         void UpdateFunction();
+        LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
     public:
         // These functions initialize or dispose
         // a window. By default, the window is
         // hidden (not visible).
 
-        WindowBase();
+        WindowBase(HINSTANCE HInstance);
         ~WindowBase();
 
         // Deleting all copy stuff.
