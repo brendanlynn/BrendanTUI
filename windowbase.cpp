@@ -46,24 +46,40 @@ namespace btui {
         }
     }
 
-    WindowBase::WindowBase(HINSTANCE HInstance) {
-        hInstance = HInstance;
+    WindowBase::WindowBase(HINSTANCE HInstance)
+        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0) {
+
         className = GenerateGuidStr();
 
-        WNDCLASS wc;
+        WNDCLASS wc = {};
         wc.hInstance = HInstance;
         wc.lpszClassName = className.c_str();
         wc.lpfnWndProc = WindowProcStatic;
 
         details::WindowProcCallStruct callStr;
         callStr.classPtr = this;
-        callStr.funcPtr = WindowProc;
+        callStr.funcPtr = &WindowBase::WindowProc;
         callStructPtr = std::make_unique<details::WindowProcCallStruct>(callStr);
+
+        RegisterClass(&wc);
+
+        hwnd = CreateWindowEx(
+            0,                       // Optional window styles
+            className.c_str(),       // Window class
+            L"",                     // Window title
+            WS_OVERLAPPEDWINDOW,     // Window style
+
+            // Position and size
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+            nullptr,                 // Parent window    
+            nullptr,                 // Menu
+            HInstance,               // Instance handle
+            nullptr                  // Additional application data
+        );
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
         updateThread = std::thread(CallUpdateFunction, &WindowBase::UpdateFunction, this);
-
-        //incomplete: many other variables are uninitialized
     }
     WindowBase::~WindowBase() {
         stopThread = true;
