@@ -212,7 +212,5 @@ namespace btui {
         virtual void OnResizeComplete(const ResizeCompleteInfo& Info) { };
         virtual void OnIdle(const IdleInfo& Info) { };
         virtual void OnFileDrop(const FileDropInfo& Info) { };
-        virtual void OnClipboardCopy(const ClipboardCopyInfo& Info) { };
-        virtual void OnClipboardPaste(const ClipboardPasteInfo& Info) { };
     };
 }
