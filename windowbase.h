@@ -207,7 +207,7 @@ namespace btui {
         virtual void OnTextInput(const TextInputInfo& Info) { };
         virtual void OnFocusGained(const FocusGainedInfo& Info) { };
         virtual void OnFocusLost(const FocusLostInfo& Info) { };
-        virtual bool OnCloseRequest(const CloseRequestInfo& Info) { };
+        virtual bool OnCloseRequest(const CloseRequestInfo& Info) { return true; };
         virtual void OnWindowStateChange(const WindowStateChangeInfo& Info) { };
         virtual void OnResize(const ResizeInfo& Info) { };
         virtual void OnResizeComplete(const ResizeCompleteInfo& Info) { };
