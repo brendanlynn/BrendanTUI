@@ -170,12 +170,15 @@ namespace btui {
 
         bool IsMinimized() const;
         bool IsMaximized() const;
+        WindowState GetState() const;
         bool HasFocus() const;
 
         // The following three are also self-explainatory.
 
         void Minimize();
         void Maximize();
+        void Restore();
+        void SetState(WindowState State);
         void CaptureFocus();
 
         // The title of the window

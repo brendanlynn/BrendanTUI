@@ -138,6 +138,9 @@ namespace btui {
     bool WindowBase::IsMaximized() const {
         return hwnd && ::IsZoomed(hwnd);
     }
+    WindowState WindowBase::GetState() const {
+        //something
+    }
     bool WindowBase::HasFocus() const {
         return hwnd && ::GetFocus() == hwnd;
     }
@@ -151,6 +154,12 @@ namespace btui {
         if (hwnd) {
             ::ShowWindow(hwnd, SW_MAXIMIZE);
         }
+    }
+    void WindowBase::Restore() {
+        //something
+    }
+    void WindowBase::SetState(WindowState State) {
+        //something
     }
     void WindowBase::CaptureFocus() {
         if (hwnd) {
