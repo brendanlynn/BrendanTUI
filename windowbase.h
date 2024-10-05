@@ -107,6 +107,7 @@ namespace btui {
         bool allowTransparentBackgrounds;
         BufferGridCell* lastBuffer;
         btui::BufferSize lastBufferSize;
+        WindowState lastWindowState;
 
         void UpdateFunction();
         LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
@@ -156,7 +157,7 @@ namespace btui {
 
         bool IsMinimized() const;
         bool IsMaximized() const;
-        WindowState GetState() const;
+        WindowState GetWindowState() const;
         bool HasFocus() const;
 
         // The following three are also self-explainatory.
@@ -164,7 +165,7 @@ namespace btui {
         void Minimize();
         void Maximize();
         void Restore();
-        void SetState(WindowState State);
+        void SetWindowState(WindowState State);
         void CaptureFocus();
 
         // The title of the window

@@ -104,6 +104,18 @@ namespace btui {
 
             return 0;
         }
+        case WM_SHOWWINDOW: {
+            WindowState newState = WParam ? GetWindowState() : WindowState::Hidden;
+
+            if (newState != lastWindowState) {
+                WindowStateChangeInfo info;
+                info.newWindowState = newState;
+
+                OnWindowStateChange(info);
+            }
+
+            return 0;
+        }
         case WM_DROPFILES: {
             HDROP hDrop = (HDROP)WParam;
             FileDropInfo dropInfo;
@@ -241,7 +253,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0) {
+        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden) {
 
         className = GenerateGuidStr();
 
@@ -345,7 +357,7 @@ namespace btui {
     bool WindowBase::IsMaximized() const {
         return hwnd && ::IsZoomed(hwnd);
     }
-    WindowState WindowBase::GetState() const {
+    WindowState WindowBase::GetWindowState() const {
         if (!IsVisible())
             return WindowState::Hidden;
         else if (IsMinimized())
@@ -374,7 +386,7 @@ namespace btui {
             ::ShowWindow(hwnd, SW_RESTORE);
         }
     }
-    void WindowBase::SetState(WindowState State) {
+    void WindowBase::SetWindowState(WindowState State) {
         switch (State) {
         case WindowState::Hidden:
             Hide();
