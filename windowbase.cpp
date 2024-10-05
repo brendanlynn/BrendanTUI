@@ -31,6 +31,13 @@ void CallUpdateFunction(void (btui::WindowBase::* UpdateFunc)(), btui::WindowBas
     (Class->*UpdateFunc)();
 }
 
+inline int GetLParamX(LPARAM lParam) {
+    return (int)(short)LOWORD(lParam);
+}
+inline int GetLParamY(LPARAM lParam) {
+    return (int)(short)HIWORD(lParam);
+}
+
 namespace btui {
     void WindowBase::UpdateFunction() {
         MSG msg;
@@ -42,7 +49,164 @@ namespace btui {
 
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
-            // stuff
+            //TODO: OnWindowStateChange
+            //TODO: OnIdle (or should it be?)
+            //TODO: OnFileDrop (or should it be?) (how could it be?)
+            //TODO: OnClipboardCopy
+            //TODO: OnClipboardPaste
+        case WM_KEYDOWN: {
+            KeyPressInfo info;
+            info.keyChar = static_cast<wchar_t>(WParam);
+            info.keyCode = static_cast<uint32_t>(WParam);
+            info.shiftPressed = GetKeyState(VK_SHIFT) & 0x8000;
+            info.ctrlPressed = GetKeyState(VK_CONTROL) & 0x8000;
+            info.altPressed = GetKeyState(VK_MENU) & 0x8000;
+
+            OnKeyPress(info);
+            return 0;
+        }
+        case WM_LBUTTONDOWN:
+        case WM_RBUTTONDOWN: {
+            MouseClickInfo info;
+            info.x = GetLParamX(LParam);
+            info.y = GetLParamY(LParam);
+            info.leftButton = (Msg == WM_LBUTTONDOWN);
+            info.rightButton = (Msg == WM_RBUTTONDOWN);
+
+            OnMouseClick(info);
+            return 0;
+        }
+        case WM_MOUSEMOVE: {
+            MouseMoveInfo info;
+            info.x = GetLParamX(LParam);
+            info.y = GetLParamY(LParam);
+
+            OnMouseMove(info);
+            return 0;
+        }
+        case WM_SIZE: {
+            ResizeInfo info;
+            info.newWidth = LOWORD(LParam);
+            info.newHeight = HIWORD(LParam);
+
+            //Should OnResize not be called if the *character* lengths are the same?
+
+            OnResize(info);
+            
+            //Should the client area automatically be invalidated?
+
+            return 0;
+        }
+        case WM_EXITSIZEMOVE: {
+            ResizeCompleteInfo info;
+            RECT rect;
+            ::GetWindowRect(hwnd, &rect);
+            info.newWidth = rect.right - rect.left;
+            info.newHeight = rect.bottom - rect.top;
+
+            OnResizeComplete(info);
+
+            //Should the client area automatically be invalidated?
+
+            return 0;
+        }
+        case WM_CLOSE: {
+            CloseRequestInfo info;
+            info.canCancel = true;
+
+            if (OnCloseRequest(info)) {
+                DestroyWindow(hwnd);
+            }
+            return 0;
+        }
+        case WM_MOUSEWHEEL: {
+            MouseScrollInfo info;
+            info.scrollAmount = GET_WHEEL_DELTA_WPARAM(WParam) / WHEEL_DELTA;
+
+            OnMouseScroll(info);
+            return 0;
+        }
+        case WM_CHAR: {
+            TextInputInfo info;
+            info.inputText = std::wstring(1, static_cast<wchar_t>(WParam));
+
+            OnTextInput(info);
+            return 0;
+        }
+        case WM_SETFOCUS: {
+            FocusGainedInfo info;
+
+            OnFocusGained(info);
+            return 0;
+        }
+        case WM_KILLFOCUS: {
+            FocusLostInfo info;
+
+            OnFocusLost(info);
+            return 0;
+        }
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(Hwnd, &ps);
+
+            // Get the dimensions of the client area
+            RECT clientRect;
+            GetClientRect(Hwnd, &clientRect);
+
+            // Calculate buffer size (in characters)
+            uint32_t width = (clientRect.right - clientRect.left) / charWidth;
+            uint32_t height = (clientRect.bottom - clientRect.top) / charHeight;
+
+            // Ensure buffer size matches the screen area and is initialized
+            mtx.lock();
+            if ((!lastBuffer) || lastBufferSize.width != width || lastBufferSize.height != height) {
+                delete[] lastBuffer;
+                lastBufferSize = { width, height };
+                lastBuffer = new BufferGridCell[width * height];
+            }
+            PaintBuffer(width, height, lastBuffer);
+            mtx.unlock();
+
+            // Monospaced font for rendering
+            HFONT hFont = CreateFontW(
+                charHeight,          // Character height
+                charWidth,           // Character width
+                0,                   // Escapement
+                0,                   // Orientation
+                FW_NORMAL,           // Weight (normal)
+                FALSE,               // Italic
+                FALSE,               // Underline
+                FALSE,               // Strikeout
+                ANSI_CHARSET,        // Character set
+                OUT_DEFAULT_PRECIS,  // Output precision
+                CLIP_DEFAULT_PRECIS, // Clipping precision
+                DEFAULT_QUALITY,     // Output quality
+                FIXED_PITCH | FF_MODERN,  // Pitch and family (monospaced)
+                L"Consolas"          // Font name
+            );
+            SelectObject(hdc, hFont);
+
+            // Draw each character in the buffer grid
+            for (uint32_t y = 0; y < height; ++y) {
+                for (uint32_t x = 0; x < width; ++x) {
+                    const BufferGridCell& cell = lastBuffer[y * width + x];
+                    SetTextColor(hdc, cell.forecolor);
+                    SetBkColor(hdc, cell.backcolor);
+
+                    wchar_t charBuffer[2] = { cell.character, L'\0' };
+                    TextOutW(hdc, x * charWidth, y * charHeight, charBuffer, 1);
+                }
+            }
+
+            DeleteObject(hFont);
+            EndPaint(Hwnd, &ps);
+            return 0;
+        }
+        default:
+            return DefWindowProc(Hwnd, Msg, WParam, LParam);
         }
     }
 

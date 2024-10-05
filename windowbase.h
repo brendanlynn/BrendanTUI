@@ -202,7 +202,6 @@ namespace btui {
         virtual void OnKeyPress(const KeyPressInfo& Info) { };
         virtual void OnMouseClick(const MouseClickInfo& Info) { };
         virtual void OnMouseMove(const MouseMoveInfo& Info) { };
-        virtual void OnMouseDrag(const MouseDragInfo& Info) { };
         virtual void OnMouseScroll(const MouseScrollInfo& Info) { };
         virtual void OnTextInput(const TextInputInfo& Info) { };
         virtual void OnFocusGained(const FocusGainedInfo& Info) { };
