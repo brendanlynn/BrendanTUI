@@ -50,10 +50,7 @@ namespace btui {
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
             //TODO: OnWindowStateChange
-            //TODO: OnIdle (or should it be?)
-            //TODO: OnFileDrop (or should it be?) (how could it be?)
-            //TODO: OnClipboardCopy
-            //TODO: OnClipboardPaste
+            //TODO: OnFileDrop
         case WM_KEYDOWN: {
             KeyPressInfo info;
             info.keyChar = static_cast<wchar_t>(WParam);
