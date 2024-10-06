@@ -22,6 +22,10 @@ std::wstring GenerateGuidStr() {
     return std::wstring(buffer);
 }
 
+LRESULT CALLBACK WindowProcStaticPlaceholder(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
+    return DefWindowProc(Hwnd, Msg, WParam, LParam);
+}
+
 LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
     btui::details::WindowProcCallStruct* funcWCont = reinterpret_cast<btui::details::WindowProcCallStruct*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
 
@@ -117,7 +121,7 @@ namespace btui {
             info.newHeight = HIWORD(LParam) / charHeight;
 
             OnResize(info);
-            
+
             Invalidate();
 
             return 0;
@@ -278,7 +282,7 @@ namespace btui {
         WNDCLASS wc = {};
         wc.hInstance = HInstance;
         wc.lpszClassName = className.c_str();
-        wc.lpfnWndProc = WindowProcStatic;
+        wc.lpfnWndProc = WindowProcStaticPlaceholder;
 
         details::WindowProcCallStruct callStr;
         callStr.classPtr = this;
@@ -296,13 +300,15 @@ namespace btui {
             // Position and size
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
-            nullptr,                 // Parent window    
+            nullptr,                 // Parent window
             nullptr,                 // Menu
             HInstance,               // Instance handle
             nullptr                  // Additional application data
         );
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
+        SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcStatic));
+
         updateThread = std::thread(CallUpdateFunction, &WindowBase::UpdateFunction, this);
     }
     WindowBase::~WindowBase() {
