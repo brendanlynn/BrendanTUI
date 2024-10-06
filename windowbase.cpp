@@ -109,12 +109,22 @@ namespace btui {
             POINT mousePt;
             mousePt.x = GetLParamX(LParam);
             mousePt.y = GetLParamY(LParam);
-            ScreenToClient(hwnd, &mousePt);
+
+            RECT clientRect;
+            GetClientRect(hwnd, &clientRect);
+
+            if (mousePt.x < clientRect.left || mousePt.y < clientRect.top || mousePt.x + charWidth >= clientRect.right || mousePt.y + charHeight >= clientRect.bottom) {
+                //somehow, the mouse was not in the client area
+                return 0;
+            }
+
+            uint32_t charX = (mousePt.x - clientRect.left) / charWidth;
+            uint32_t charY = (mousePt.y - clientRect.top) / charHeight;
 
             if (mouseContained) {
                 MouseMoveInfo info;
-                info.x = mousePt.x / charWidth;
-                info.y = mousePt.y / charHeight;
+                info.x = charX;
+                info.y = charY;
 
                 OnMouseMove(info);
             }
@@ -122,8 +132,8 @@ namespace btui {
                 mouseContained = true;
 
                 MouseEnterInfo info;
-                info.x = mousePt.x / charWidth;
-                info.y = mousePt.y / charHeight;
+                info.x = charX;
+                info.y = charY;
 
                 OnMouseEnter(info);
             }
