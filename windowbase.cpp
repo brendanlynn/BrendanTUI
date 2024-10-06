@@ -290,7 +290,7 @@ namespace btui {
                 for (uint32_t x = 0; x < width; ++x) {
                     const BufferGridCell& cell = lastBuffer[y * width + x];
                     SetTextColor(hdc, cell.forecolor);
-                    SetBkColor(hdc, cell.backcolor);
+                    //SetBkColor(hdc, cell.backcolor); //this line was causing the text to be blacked out, for some reason
 
                     wchar_t charBuffer[2] = { cell.character, L'\0' };
                     TextOutW(hdc, x * charWidth, y * charHeight, charBuffer, 1);
