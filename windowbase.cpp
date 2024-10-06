@@ -13,8 +13,8 @@ std::wstring GenerateGuidStr() {
     GUID guid;
     CoCreateGuid(&guid);
 
-    wchar_t buffer[40];
-    swprintf_s(buffer, sizeof(buffer), L"{%08x-%04x-%04x-%04x-%012llx}",
+    wchar_t buffer[41];
+    swprintf_s(buffer, 41, L"%08x-%04x-%04x-%04x-%012llx",
         guid.Data1, guid.Data2, guid.Data3,
         (guid.Data4[0] << 8) | guid.Data4[1],
         *(reinterpret_cast<unsigned long long*>(&guid.Data4[2])));
