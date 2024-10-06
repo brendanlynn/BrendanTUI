@@ -13,6 +13,10 @@ namespace btui {
         wchar_t character;
         uint32_t forecolor;
         uint32_t backcolor;
+
+        BufferGridCell() = default;
+        inline BufferGridCell(wchar_t Character, uint32_t Forecolor, uint32_t Backcolor)
+            : character(Character), forecolor(Forecolor), backcolor(Backcolor) { }
     };
 
     struct BufferSize {
@@ -20,13 +24,13 @@ namespace btui {
         uint32_t height;
 
         BufferSize() = default;
-        BufferSize(uint32_t Width, uint32_t Height)
+        inline BufferSize(uint32_t Width, uint32_t Height)
             : width(Width), height(Height) { }
 
-        bool operator==(const BufferSize& Other) const {
+        inline bool operator==(const BufferSize& Other) const {
             return width == Other.width && height == Other.height;
         }
-        bool operator!=(const BufferSize& Other) const {
+        inline bool operator!=(const BufferSize& Other) const {
             return width != Other.width || height != Other.height;
         }
     };
