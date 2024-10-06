@@ -83,11 +83,32 @@ namespace btui {
             mousePt.y = GetLParamY(LParam);
             ScreenToClient(hwnd, &mousePt);
 
-            MouseMoveInfo info;
-            info.x = mousePt.x / charWidth;
-            info.y = mousePt.y / charWidth;
+            if (mouseContained) {
+                MouseMoveInfo info;
+                info.x = mousePt.x / charWidth;
+                info.y = mousePt.y / charWidth;
 
-            OnMouseMove(info);
+                OnMouseMove(info);
+            }
+            else {
+                mouseContained = true;
+
+                MouseEnterInfo info;
+                info.x = mousePt.x / charWidth;
+                info.y = mousePt.y / charWidth;
+
+                OnMouseEnter(info);
+            }
+
+            return 0;
+        }
+        case WM_MOUSELEAVE: {
+            mouseContained = false;
+
+            MouseExitInfo info;
+
+            OnMouseExit(info);
+
             return 0;
         }
         case WM_SIZE: {
@@ -252,7 +273,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden) {
+        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
 
         className = GenerateGuidStr();
 

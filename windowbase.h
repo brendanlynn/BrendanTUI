@@ -55,6 +55,11 @@ namespace btui {
         uint32_t x; //column of the char moved to
         uint32_t y; //row of the char moved to
     };
+    struct MouseEnterInfo {
+        uint32_t x; //column of the char entered to
+        uint32_t y; //row of the char entered to
+    };
+    struct MouseExitInfo { };
     struct MouseScrollInfo {
         int32_t scrollAmount;
     };
@@ -105,6 +110,7 @@ namespace btui {
         std::unique_ptr<details::WindowProcCallStruct> callStructPtr;
 
         bool allowTransparentBackgrounds;
+        bool mouseContained;
         BufferGridCell* lastBuffer;
         btui::BufferSize lastBufferSize;
         WindowState lastWindowState;
@@ -190,6 +196,8 @@ namespace btui {
         virtual void OnKeyPress(const KeyPressInfo& Info) { };
         virtual void OnMouseClick(const MouseClickInfo& Info) { };
         virtual void OnMouseMove(const MouseMoveInfo& Info) { };
+        virtual void OnMouseEnter(const MouseEnterInfo& Info) { };
+        virtual void OnMouseExit(const MouseExitInfo& Info) { };
         virtual void OnMouseScroll(const MouseScrollInfo& Info) { };
         virtual void OnTextInput(const TextInputInfo& Info) { };
         virtual void OnFocusGained(const FocusGainedInfo& Info) { };
