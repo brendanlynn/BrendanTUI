@@ -170,8 +170,6 @@ namespace btui {
 
             OnResizeComplete(info);
 
-            //Should the client area automatically be invalidated?
-
             return 0;
         }
         case WM_CLOSE: {
