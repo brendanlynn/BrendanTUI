@@ -40,11 +40,39 @@ inline int GetLParamY(LPARAM lParam) {
 }
 
 namespace btui {
-    void WindowBase::UpdateFunction() {
+    void WindowBase::UpdateFunction(bool* Initialized) {
+        WNDCLASS wc = {};
+        wc.hInstance = hInstance;
+        wc.lpszClassName = className.c_str();
+        wc.lpfnWndProc = WindowProcStaticPlaceholder;
+
+        RegisterClass(&wc);
+
+        hwnd = CreateWindowEx(
+            0,                       // Optional window styles
+            className.c_str(),       // Window class
+            L"",                     // Window title
+            WS_OVERLAPPEDWINDOW,     // Window style
+
+            // Position and size
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+            nullptr,                 // Parent window
+            nullptr,                 // Menu
+            hInstance,               // Instance handle
+            nullptr                  // Additional application data
+        );
+
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
+        SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcStatic));
+
+        *Initialized = true;
+
         MSG msg;
         while (GetMessageW(&msg, hwnd, 0, 0)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+            if (stopThread) PostQuitMessage(0); //XXX: Why doesn't this ask for an HWND?
         }
     }
 
@@ -273,37 +301,14 @@ namespace btui {
 
         className = GenerateGuidStr();
 
-        WNDCLASS wc = {};
-        wc.hInstance = HInstance;
-        wc.lpszClassName = className.c_str();
-        wc.lpfnWndProc = WindowProcStaticPlaceholder;
-
         details::WindowProcCallStruct callStr;
         callStr.classPtr = this;
         callStr.funcPtr = &WindowBase::WindowProc;
         callStructPtr = std::make_unique<details::WindowProcCallStruct>(callStr);
 
-        RegisterClass(&wc);
-
-        hwnd = CreateWindowEx(
-            0,                       // Optional window styles
-            className.c_str(),       // Window class
-            L"",                     // Window title
-            WS_OVERLAPPEDWINDOW,     // Window style
-
-            // Position and size
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-            nullptr,                 // Parent window
-            nullptr,                 // Menu
-            HInstance,               // Instance handle
-            nullptr                  // Additional application data
-        );
-
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
-        SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcStatic));
-
-        updateThread = std::thread(&WindowBase::UpdateFunction, this);
+        bool initialized = false;
+        updateThread = std::thread(&WindowBase::UpdateFunction, this, &initialized);
+        while (!initialized) std::this_thread::yield();
     }
     WindowBase::~WindowBase() {
         stopThread = true;

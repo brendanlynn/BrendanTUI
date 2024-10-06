@@ -120,7 +120,7 @@ namespace btui {
         btui::BufferSize lastBufferSize;
         WindowState lastWindowState;
 
-        void UpdateFunction();
+        void UpdateFunction(bool* Initialized);
         LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
     public:
         // These functions initialize or dispose
