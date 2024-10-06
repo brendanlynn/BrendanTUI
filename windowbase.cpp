@@ -99,7 +99,7 @@ namespace btui {
 
             OnResize(info);
             
-            //Should the client area automatically be invalidated?
+            Invalidate();
 
             return 0;
         }
