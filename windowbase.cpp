@@ -32,10 +32,6 @@ LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LPa
     return (funcWCont->classPtr->*(funcWCont->funcPtr))(Hwnd, Msg, WParam, LParam);
 }
 
-void CallUpdateFunction(void (btui::WindowBase::* UpdateFunc)(), btui::WindowBase* Class) {
-    (Class->*UpdateFunc)();
-}
-
 inline int GetLParamX(LPARAM lParam) {
     return (int)(short)LOWORD(lParam);
 }
@@ -307,7 +303,7 @@ namespace btui {
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
         SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcStatic));
 
-        updateThread = std::thread(CallUpdateFunction, &WindowBase::UpdateFunction, this);
+        updateThread = std::thread(&WindowBase::UpdateFunction, this);
     }
     WindowBase::~WindowBase() {
         stopThread = true;
