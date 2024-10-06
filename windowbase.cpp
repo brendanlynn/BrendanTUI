@@ -70,7 +70,7 @@ namespace btui {
 
             MouseClickInfo info;
             info.x = mousePt.x / charWidth;
-            info.y = mousePt.y / charWidth;
+            info.y = mousePt.y / charHeight;
             info.leftButton = (Msg == WM_LBUTTONDOWN);
             info.rightButton = (Msg == WM_RBUTTONDOWN);
 
@@ -86,7 +86,7 @@ namespace btui {
             if (mouseContained) {
                 MouseMoveInfo info;
                 info.x = mousePt.x / charWidth;
-                info.y = mousePt.y / charWidth;
+                info.y = mousePt.y / charHeight;
 
                 OnMouseMove(info);
             }
@@ -95,7 +95,7 @@ namespace btui {
 
                 MouseEnterInfo info;
                 info.x = mousePt.x / charWidth;
-                info.y = mousePt.y / charWidth;
+                info.y = mousePt.y / charHeight;
 
                 OnMouseEnter(info);
             }
@@ -113,10 +113,8 @@ namespace btui {
         }
         case WM_SIZE: {
             ResizeInfo info;
-            info.newWidth = LOWORD(LParam);
-            info.newHeight = HIWORD(LParam);
-
-            //Should OnResize not be called if the *character* lengths are the same?
+            info.newWidth = LOWORD(LParam) / charWidth;
+            info.newHeight = HIWORD(LParam) / charHeight;
 
             OnResize(info);
             
