@@ -326,7 +326,7 @@ namespace btui {
     bool WindowBase::CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer) {
         std::lock_guard<std::mutex> lock(mtx);
 
-        if (!lastBuffer) return 0;
+        if (!lastBuffer) return false;
 
         if (lastBufferSize != BufferSize) return false;
 
