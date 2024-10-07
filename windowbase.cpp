@@ -360,7 +360,7 @@ namespace btui {
                 lastBufferSize = { width, height };
                 lastBuffer = new BufferGridCell[width * height];
             }
-            PaintBuffer(ScreenBuffer(width, height, lastBuffer));
+            PaintBuffer(WindowBuffer(width, height, lastBuffer));
             mtx.unlock();
 
             // Monospaced font for rendering
@@ -439,16 +439,16 @@ namespace btui {
         }
         else return btui::BufferSize(0, 0);
     }
-    ScreenBuffer WindowBase::CopyBufferOut() {
+    WindowBuffer WindowBase::CopyBufferOut() {
         std::lock_guard<std::mutex> lock(mtx);
 
-        if (!lastBuffer) return ScreenBuffer(0, 0, 0);
+        if (!lastBuffer) return WindowBuffer(0, 0, 0);
 
         btui::BufferSize bufSize = lastBufferSize;
         BufferGridCell* outBuffer = new BufferGridCell[bufSize.width * bufSize.height];
         memcpy(outBuffer, lastBuffer, sizeof(BufferGridCell) * bufSize.width * bufSize.height);
 
-        return ScreenBuffer(bufSize, outBuffer);
+        return WindowBuffer(bufSize, outBuffer);
     }
     bool WindowBase::CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer) {
         std::lock_guard<std::mutex> lock(mtx);
@@ -461,7 +461,7 @@ namespace btui {
 
         return true;
     }
-    bool WindowBase::CopyBufferOut(ScreenBuffer Buffer) {
+    bool WindowBase::CopyBufferOut(WindowBuffer Buffer) {
         return CopyBufferOut(Buffer.size, Buffer.buffer);
     }
 

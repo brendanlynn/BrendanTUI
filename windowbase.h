@@ -45,16 +45,16 @@ namespace btui {
         }
     };
 
-    struct ScreenBuffer {
+    struct WindowBuffer {
         union {
             struct { uint32_t width, height; };
             BufferSize size;
         };
         BufferGridCell* buffer;
 
-        ScreenBuffer(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
+        WindowBuffer(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
             : width(Width), height(Height), buffer(Buffer) { }
-        ScreenBuffer(BufferSize BufferSize, BufferGridCell* Buffer)
+        WindowBuffer(BufferSize BufferSize, BufferGridCell* Buffer)
             : size(BufferSize), buffer(Buffer) { }
     };
 
@@ -182,9 +182,9 @@ namespace btui {
         // well as functionality to copy it out.
 
         btui::BufferSize BufferSize();
-        ScreenBuffer CopyBufferOut();
+        WindowBuffer CopyBufferOut();
         bool CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer);
-        bool CopyBufferOut(ScreenBuffer Buffer);
+        bool CopyBufferOut(WindowBuffer Buffer);
 
         // Invalidates the client area for redrawing.
 
@@ -229,7 +229,7 @@ namespace btui {
         // Client repaint (buffer should be in
         // row-major order).
 
-        virtual void PaintBuffer(ScreenBuffer Buffer) = 0;
+        virtual void PaintBuffer(WindowBuffer Buffer) = 0;
 
         // Events
 
