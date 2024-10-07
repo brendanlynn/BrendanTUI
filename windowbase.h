@@ -1,9 +1,11 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <concepts>
 #include <functional>
 #include <mutex>
+#include <queue>
 #include <string>
 #include <thread>
 #include <vector>
@@ -78,6 +80,7 @@ namespace btui {
     struct CloseRequestInfo {
         bool canCancel;
     };
+    struct DisposedInfo { };
     struct TextInputInfo {
         std::wstring inputText;
     };
@@ -100,14 +103,21 @@ namespace btui {
         uint32_t mouseY; //row of the char the mouse was on when it dropped the file
     };
 
-    class WindowBase;
-
     namespace details {
-        using windowProcMemberFunc_t = LRESULT(btui::WindowBase::*)(HWND, UINT, WPARAM, LPARAM);
+        struct QueuedTask {
+            std::function<void()> func;
+            int* statusCode; //0 for pending; 1 for complete; 2 for cancelled
 
-        struct WindowProcCallStruct {
-            btui::WindowBase* classPtr;
-            windowProcMemberFunc_t funcPtr;
+            inline QueuedTask(std::function<void()> Func, int* StatusCodePointer)
+                : func(std::move(Func)), statusCode(StatusCodePointer) { }
+
+            inline void Run() {
+                func();
+                *statusCode = 1;
+            }
+            inline void Cancel() {
+                *statusCode = 2;
+            }
         };
     }
 
@@ -118,8 +128,8 @@ namespace btui {
 
         std::mutex mtx;
         std::thread updateThread;
-        bool stopThread;
-        std::unique_ptr<details::WindowProcCallStruct> callStructPtr;
+        std::atomic<bool> isRunning;
+        std::queue<details::QueuedTask> taskQueue;
 
         bool allowTransparentBackgrounds;
         bool mouseContained;
@@ -128,7 +138,11 @@ namespace btui {
         WindowState lastWindowState;
 
         void UpdateFunction(bool* Initialized);
+        static LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
         LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
+        void ProcessTasks();
+        void CancelTasks();
+        bool InvokeOnWindowThread(std::function<void()> Func);
     public:
         // These functions initialize or dispose
         // a window. By default, the window is
@@ -136,6 +150,10 @@ namespace btui {
 
         WindowBase(HINSTANCE HInstance);
         ~WindowBase();
+
+        void Dispose();
+        bool Running() const;
+        bool Disposed() const;
 
         // Deleting all copy stuff.
 
@@ -146,10 +164,6 @@ namespace btui {
 
         WindowBase(WindowBase&&) = delete;
         WindowBase& operator=(WindowBase&&) = delete;
-
-        // The HWND of the window.
-
-        HWND GetHwnd();
 
         // The width and height of the buffer, as
         // well as functionality to copy it out.
@@ -167,16 +181,16 @@ namespace btui {
         // to the user, and also gives it focus.
         // Hide() hides it from the user.
 
-        bool IsVisible() const;
+        bool IsVisible();
         void Show();
         void Hide();
 
         // The following three are self-explainatory.
 
-        bool IsMinimized() const;
-        bool IsMaximized() const;
-        WindowState GetWindowState() const;
-        bool HasFocus() const;
+        bool IsMinimized();
+        bool IsMaximized();
+        WindowState GetWindowState();
+        bool HasFocus();
 
         // The following three are also self-explainatory.
 
@@ -188,7 +202,7 @@ namespace btui {
 
         // The title of the window
 
-        std::wstring GetTitle() const;
+        std::wstring GetTitle();
         void SetTitle(std::wstring Title);
 
         // Disabling transparent backgrounds increases
@@ -215,6 +229,7 @@ namespace btui {
         virtual void OnFocusGained(const FocusGainedInfo& Info) { };
         virtual void OnFocusLost(const FocusLostInfo& Info) { };
         virtual bool OnCloseRequest(const CloseRequestInfo& Info) { return true; };
+        virtual void OnDisposed(const DisposedInfo& Info) { };
         virtual void OnWindowStateChange(const WindowStateChangeInfo& Info) { };
         virtual void OnResize(const ResizeInfo& Info) { };
         virtual void OnResizeComplete(const ResizeCompleteInfo& Info) { };

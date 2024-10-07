@@ -3,7 +3,6 @@
 
 #include "windowbase.h"
 #include <combaseapi.h>
-#include <exception>
 #include <shellapi.h>
 
 constexpr uint32_t charWidth = 10; //placeholder
@@ -24,12 +23,6 @@ std::wstring GenerateGuidStr() {
 
 LRESULT CALLBACK WindowProcStaticPlaceholder(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
     return DefWindowProc(Hwnd, Msg, WParam, LParam);
-}
-
-LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
-    btui::details::WindowProcCallStruct* funcWCont = reinterpret_cast<btui::details::WindowProcCallStruct*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
-
-    return (funcWCont->classPtr->*(funcWCont->funcPtr))(Hwnd, Msg, WParam, LParam);
 }
 
 inline int GetLParamX(LPARAM lParam) {
@@ -67,19 +60,90 @@ namespace btui {
             nullptr                  // Additional application data
         );
 
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(callStructPtr.get()));
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
         SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcStatic));
 
         *Initialized = true;
 
         MSG msg;
-        while (GetMessageW(&msg, hwnd, 0, 0)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-            if (stopThread) PostQuitMessage(0); //XXX: Why doesn't this ask for an HWND?
+        while (isRunning.load()) {
+            while (PeekMessageW(&msg, hwnd, 0, 0, PM_REMOVE)) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+
+            ProcessTasks();
+
+            std::this_thread::yield();
+        }
+
+        CancelTasks();
+
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            if (hwnd) DestroyWindow(hwnd);
+
+            UnregisterClassW(className.c_str(), hInstance);
+
+            hwnd = 0;
+
+            delete[] lastBuffer;
+            lastBuffer = 0;
+        }
+
+        DisposedInfo info;
+
+        OnDisposed(info);
+    }
+    void WindowBase::ProcessTasks() {
+        std::unique_lock<std::mutex> lock(mtx);
+        while (!taskQueue.empty()) {
+            auto task = std::move(taskQueue.front());
+            taskQueue.pop();
+            lock.unlock();
+            task.Run();
+            lock.lock();
+        }
+    }
+    void WindowBase::CancelTasks() {
+        std::lock_guard<std::mutex> lock(mtx);
+        while (!taskQueue.empty()) {
+            auto task = std::move(taskQueue.front());
+            taskQueue.pop();
+            task.Cancel();
+        }
+        taskQueue = std::queue<details::QueuedTask>();
+    }
+    bool WindowBase::InvokeOnWindowThread(std::function<void()> Func) {
+        if (std::this_thread::get_id() == updateThread.get_id()) {
+            Func();
+            return true;
+        }
+        else {
+            int statusCode = 0;
+
+            details::QueuedTask task(std::move(Func), &statusCode);
+
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+
+                if (!isRunning) return false;
+
+                taskQueue.push(std::move(task));
+            }
+
+            while (!statusCode) std::this_thread::yield();
+
+            return statusCode == 1;
         }
     }
 
+    LRESULT CALLBACK WindowBase::WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
+        WindowBase* pThis = reinterpret_cast<WindowBase*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
+
+        pThis->WindowProc(Hwnd, Msg, WParam, LParam);
+    }
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
         case WM_KEYDOWN: {
@@ -228,7 +292,6 @@ namespace btui {
             DragFinish(hDrop);
             return 0;
         }
-
         case WM_EXITSIZEMOVE: {
             ResizeCompleteInfo info;
             RECT rect;
@@ -245,7 +308,7 @@ namespace btui {
             info.canCancel = true;
 
             if (OnCloseRequest(info)) {
-                DestroyWindow(hwnd);
+                isRunning.store(false);
             }
             return 0;
         }
@@ -276,7 +339,7 @@ namespace btui {
             return 0;
         }
         case WM_DESTROY:
-            PostQuitMessage(0);
+            isRunning.store(false);
             return 0;
         case WM_PAINT: {
             PAINTSTRUCT ps;
@@ -341,44 +404,40 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), stopThread(false), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
+        : hInstance(HInstance), isRunning(true), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
 
         className = GenerateGuidStr();
-
-        details::WindowProcCallStruct callStr;
-        callStr.classPtr = this;
-        callStr.funcPtr = &WindowBase::WindowProc;
-        callStructPtr = std::make_unique<details::WindowProcCallStruct>(callStr);
 
         bool initialized = false;
         updateThread = std::thread(&WindowBase::UpdateFunction, this, &initialized);
         while (!initialized) std::this_thread::yield();
     }
-    WindowBase::~WindowBase() {
-        stopThread = true;
-        if (updateThread.joinable())
+    WindowBase::~WindowBase() { Dispose(); }
+
+    void WindowBase::Dispose() {
+        if (isRunning.exchange(false) && updateThread.joinable())
             updateThread.join();
-
-        if (hwnd) DestroyWindow(hwnd);
-
-        delete[] lastBuffer;
-        lastBuffer = 0;
-
-        UnregisterClassW(className.c_str(), hInstance);
     }
-
-    HWND WindowBase::GetHwnd() {
-        return hwnd;
+    bool WindowBase::Running() const {
+        return isRunning.load();
+    }
+    bool WindowBase::Disposed() const {
+        return !isRunning.load();
     }
 
     BufferSize WindowBase::BufferSize() {
-        RECT rect;
-        ::GetWindowRect(hwnd, &rect);
+        RECT winRect;
+        bool success = InvokeOnWindowThread([this, &winRect]() {
+            ::GetWindowRect(hwnd, &winRect);
+        });
 
-        btui::BufferSize bufSize;
-        bufSize.width = (rect.right - rect.left) / charWidth;
-        bufSize.height = (rect.bottom - rect.top) / charHeight;
-        return bufSize;
+        if (success) {
+            btui::BufferSize bufSize;
+            bufSize.width = (winRect.right - winRect.left) / charWidth;
+            bufSize.height = (winRect.bottom - winRect.top) / charHeight;
+            return bufSize;
+        }
+        else return btui::BufferSize(0, 0);
     }
     BufferGridCell* WindowBase::CopyBufferOut() {
         std::lock_guard<std::mutex> lock(mtx);
@@ -404,58 +463,79 @@ namespace btui {
     }
 
     void WindowBase::Invalidate() {
-        ::InvalidateRect(hwnd, NULL, allowTransparentBackgrounds ? TRUE : FALSE);
+        InvokeOnWindowThread([this]() {
+            ::InvalidateRect(hwnd, NULL, allowTransparentBackgrounds ? TRUE : FALSE);
+        });
     }
 
-    bool WindowBase::IsVisible() const {
-        return hwnd && ::IsWindowVisible(hwnd);
+    bool WindowBase::IsVisible() {
+        bool visible;
+        bool success = InvokeOnWindowThread([this, &visible]() {
+            visible = ::IsWindowVisible(hwnd);
+        });
+        return success && visible;
     }
     void WindowBase::Show() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::ShowWindow(hwnd, SW_SHOW);
             ::SetFocus(hwnd);
-        }
+        });
     }
     void WindowBase::Hide() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::ShowWindow(hwnd, SW_HIDE);
-        }
+        });
     }
 
-    bool WindowBase::IsMinimized() const {
-        return hwnd && ::IsIconic(hwnd);
+    bool WindowBase::IsMinimized() {
+        bool val;
+        bool success = InvokeOnWindowThread([this, &val]() {
+            val = ::IsIconic(hwnd);
+        });
+        return success && val;
     }
-    bool WindowBase::IsMaximized() const {
-        return hwnd && ::IsZoomed(hwnd);
+    bool WindowBase::IsMaximized() {
+        bool val;
+        bool success = InvokeOnWindowThread([this, &val]() {
+            val = ::IsZoomed(hwnd);
+        });
+        return success && val;
     }
-    WindowState WindowBase::GetWindowState() const {
-        if (!IsVisible())
-            return WindowState::Hidden;
-        else if (IsMinimized())
-            return WindowState::Minimized;
-        else if (IsMaximized())
-            return WindowState::Maximized;
-        else
-            return WindowState::Restored;
+    WindowState WindowBase::GetWindowState() {
+        WindowState winState;
+        bool success = InvokeOnWindowThread([this, &winState]() {
+            if (!::IsWindowVisible(hwnd))
+                winState = WindowState::Hidden;
+            else if (::IsIconic(hwnd))
+                winState = WindowState::Minimized;
+            else if (::IsZoomed(hwnd))
+                winState = WindowState::Maximized;
+            else
+                winState = WindowState::Restored;
+        });
     }
-    bool WindowBase::HasFocus() const {
-        return hwnd && ::GetFocus() == hwnd;
+    bool WindowBase::HasFocus() {
+        bool hasFocus;
+        bool success = InvokeOnWindowThread([this, &hasFocus]() {
+            hasFocus = ::GetFocus() == hwnd;
+        });
+        return success && hasFocus;
     }
 
     void WindowBase::Minimize() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::ShowWindow(hwnd, SW_MINIMIZE);
-        }
+        });
     }
     void WindowBase::Maximize() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::ShowWindow(hwnd, SW_MAXIMIZE);
-        }
+        });
     }
     void WindowBase::Restore() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::ShowWindow(hwnd, SW_RESTORE);
-        }
+        });
     }
     void WindowBase::SetWindowState(WindowState State) {
         switch (State) {
@@ -471,31 +551,33 @@ namespace btui {
         case WindowState::Restored:
             Restore();
             break;
-        default:
-            throw std::exception("Invalid WindowState param.");
         }
     }
     void WindowBase::CaptureFocus() {
-        if (hwnd) {
+        InvokeOnWindowThread([this]() {
             ::SetFocus(hwnd);
-        }
+        });
     }
 
-    std::wstring WindowBase::GetTitle() const {
-        if (!hwnd) return L"";
+    std::wstring WindowBase::GetTitle() {
+        std::wstring title;
+        bool success = InvokeOnWindowThread([this, &title]() {
+            int len = ::GetWindowTextLengthW(hwnd);
+            if (!len) {
+                title = L"";
+                return;
+            }
 
-        int len = ::GetWindowTextLengthW(hwnd);
-        if (!len) return L"";
+            title = std::wstring(len, '\0');
+            ::GetWindowTextW(hwnd, &title[0], title.size());
+        });
 
-        std::wstring title(len, '\0');
-        ::GetWindowTextW(hwnd, &title[0], title.size());
-
-        return title;
+        return success ? title : L"";
     }
     void WindowBase::SetTitle(std::wstring Title) {
-        if (hwnd) {
+        InvokeOnWindowThread([this, &Title]() {
             ::SetWindowTextW(hwnd, Title.c_str());
-        }
+        });
     }
 
     bool WindowBase::GetAllowTransparentBackgrounds() {
