@@ -142,7 +142,7 @@ namespace btui {
     LRESULT CALLBACK WindowBase::WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         WindowBase* pThis = reinterpret_cast<WindowBase*>(GetWindowLongPtr(Hwnd, GWLP_USERDATA));
 
-        pThis->WindowProc(Hwnd, Msg, WParam, LParam);
+        return pThis->WindowProc(Hwnd, Msg, WParam, LParam);
     }
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
@@ -513,6 +513,8 @@ namespace btui {
             else
                 winState = WindowState::Restored;
         });
+
+        return success ? winState : WindowState::Hidden;
     }
     bool WindowBase::HasFocus() {
         bool hasFocus;
