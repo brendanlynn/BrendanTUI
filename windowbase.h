@@ -10,6 +10,13 @@
 #include <windows.h>
 
 namespace btui {
+    static inline uint32_t FromRGB(uint8_t R, uint8_t G, uint8_t B) {
+        return (uint32_t)R << 16 | (uint32_t)G << 8 | (uint32_t)B;
+    }
+    static inline uint32_t FromARGB(uint8_t A, uint8_t R, uint8_t G, uint8_t B) {
+        return (uint32_t)A << 24 | (uint32_t)R << 16 | (uint32_t)G << 8 | (uint32_t)B;
+    }
+
     struct BufferGridCell {
         wchar_t character;
         uint32_t forecolor;
