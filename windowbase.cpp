@@ -39,6 +39,10 @@ inline int GetLParamY(LPARAM lParam) {
     return (int)(short)HIWORD(lParam);
 }
 
+inline COLORREF ConvertToColorref(uint32_t Color) {
+    return RGB((Color >> 16) & 255, (Color >> 8) & 255, Color & 255);
+}
+
 namespace btui {
     void WindowBase::UpdateFunction(bool* Initialized) {
         WNDCLASS wc = {};
@@ -289,8 +293,8 @@ namespace btui {
             for (uint32_t y = 0; y < height; ++y) {
                 for (uint32_t x = 0; x < width; ++x) {
                     const BufferGridCell& cell = lastBuffer[y * width + x];
-                    SetTextColor(hdc, cell.forecolor);
-                    //SetBkColor(hdc, cell.backcolor); //this line was causing the text to be blacked out, for some reason
+                    SetTextColor(hdc, ConvertToColorref(cell.forecolor));
+                    SetBkColor(hdc, ConvertToColorref(cell.backcolor));
 
                     wchar_t charBuffer[2] = { cell.character, L'\0' };
                     TextOutW(hdc, x * charWidth, y * charHeight, charBuffer, 1);
