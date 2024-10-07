@@ -58,6 +58,16 @@ namespace btui {
             : size(BufferSize), buffer(Buffer) { }
     };
 
+    struct BufferPartition {
+        uint32_t x;
+        uint32_t y;
+        uint32_t width;
+        uint32_t height;
+
+        BufferPartition(uint32_t X, uint32_t Y, uint32_t Width, uint32_t Height)
+            : x(X), y(Y), width(Width), height(Height) { }
+    };
+
     enum WindowState {
         Hidden,
         Minimized,
