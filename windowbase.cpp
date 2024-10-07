@@ -117,13 +117,34 @@ namespace btui {
             RECT clientRect;
             GetClientRect(hwnd, &clientRect);
 
-            if (mousePt.x < clientRect.left || mousePt.y < clientRect.top || mousePt.x + charWidth >= clientRect.right || mousePt.y + charHeight >= clientRect.bottom) {
-                //somehow, the mouse was not in the client area
+            if (mousePt.x < clientRect.left || mousePt.y < clientRect.top) {
+                if (mouseContained) {
+                    mouseContained = false;
+
+                    MouseExitInfo info;
+
+                    OnMouseExit(info);
+                }
+
                 return 0;
             }
 
             uint32_t charX = (mousePt.x - clientRect.left) / charWidth;
             uint32_t charY = (mousePt.y - clientRect.top) / charHeight;
+            uint32_t bufWidth = (clientRect.right - clientRect.left) / charWidth;
+            uint32_t bufHeight = (clientRect.bottom - clientRect.top) / charHeight;
+
+            if (charX >= bufWidth || charY >= bufHeight) {
+                if (mouseContained) {
+                    mouseContained = false;
+
+                    MouseExitInfo info;
+
+                    OnMouseExit(info);
+                }
+
+                return 0;
+            }
 
             if (mouseContained) {
                 MouseMoveInfo info;
@@ -142,14 +163,23 @@ namespace btui {
                 OnMouseEnter(info);
             }
 
+            TRACKMOUSEEVENT tme;
+            tme.cbSize = sizeof(TRACKMOUSEEVENT);
+            tme.dwFlags = TME_LEAVE;
+            tme.hwndTrack = hwnd;
+            tme.dwHoverTime = 0;
+            TrackMouseEvent(&tme);
+
             return 0;
         }
         case WM_MOUSELEAVE: {
-            mouseContained = false;
+            if (mouseContained) {
+                mouseContained = false;
 
-            MouseExitInfo info;
+                MouseExitInfo info;
 
-            OnMouseExit(info);
+                OnMouseExit(info);
+            }
 
             return 0;
         }
