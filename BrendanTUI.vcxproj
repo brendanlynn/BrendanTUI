@@ -143,10 +143,10 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="windowbase.h" />
-    <ClInclude Include="control.h" />
+    <ClInclude Include="controlbase.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="control.cpp" />
+    <ClCompile Include="controlbase.cpp" />
     <ClCompile Include="windowbase.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

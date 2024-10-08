@@ -24,7 +24,7 @@
     <ClInclude Include="windowbase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="control.h">
+    <ClInclude Include="controlbase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="control.cpp">
+    <ClCompile Include="controlbase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
