@@ -65,53 +65,79 @@ namespace btui {
             : character(Character), forecolor(Forecolor), backcolor(Backcolor) { }
     };
 
-    struct BufferSize {
+    struct SizeU32 {
         uint32_t width;
         uint32_t height;
 
-        BufferSize() = default;
-        inline BufferSize(uint32_t Width, uint32_t Height)
+        SizeU32() = default;
+        inline SizeU32(uint32_t Width, uint32_t Height)
             : width(Width), height(Height) { }
 
-        inline bool operator==(const BufferSize& Other) const {
+        inline bool operator==(const SizeU32& Other) const {
             return width == Other.width && height == Other.height;
         }
-        inline bool operator!=(const BufferSize& Other) const {
+        inline bool operator!=(const SizeU32& Other) const {
             return width != Other.width || height != Other.height;
         }
     };
 
-    struct WindowBuffer {
+    struct BufferGrid {
         union {
             struct { uint32_t width, height; };
-            BufferSize size;
+            SizeU32 size;
         };
         BufferGridCell* buffer;
 
-        WindowBuffer(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
+        BufferGrid(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
             : width(Width), height(Height), buffer(Buffer) { }
-        WindowBuffer(BufferSize BufferSize, BufferGridCell* Buffer)
+        BufferGrid(SizeU32 BufferSize, BufferGridCell* Buffer)
             : size(BufferSize), buffer(Buffer) { }
-    };
-
-    struct BufferPartition {
-        uint32_t x;
-        uint32_t y;
-        uint32_t width;
-        uint32_t height;
-
-        BufferPartition(uint32_t X, uint32_t Y, uint32_t Width, uint32_t Height)
-            : x(X), y(Y), width(Width), height(Height) { }
     };
 
     struct PointU32 {
         uint32_t x;
         uint32_t y;
 
-        PointU32()
-            : x(0), y(0) { }
-        PointU32(uint32_t X, uint32_t Y)
+        inline PointU32() = default;
+        inline PointU32(uint32_t X, uint32_t Y)
             : x(X), y(Y) { }
+
+        inline bool operator==(const PointU32& Other) const {
+            return x == Other.x && y == Other.y;
+        }
+        inline bool operator!=(const PointU32& Other) const {
+            return x != Other.x || y != Other.y;
+        }
+    };
+
+    struct RectU32 {
+        union {
+            struct {
+                uint32_t x;
+                uint32_t y;
+            };
+            PointU32 point;
+        };
+        union {
+            struct {
+                uint32_t width;
+                uint32_t height;
+            };
+            SizeU32 size;
+        };
+
+        RectU32() = default;
+        inline RectU32(uint32_t X, uint32_t Y, uint32_t Width, uint32_t Height)
+            : x(X), y(Y), width(Width), height(Height) { }
+        inline RectU32(PointU32 Point, SizeU32 Size)
+            : point(Point), size(Size) { }
+
+        inline bool operator==(const RectU32& Other) const {
+            return x == Other.x && y == Other.y && width == Other.width && height == Other.height;
+        }
+        inline bool operator!=(const RectU32& Other) const {
+            return x != Other.x || y != Other.y || width != Other.width || height != Other.height;
+        }
     };
 
     enum WindowState {
@@ -174,12 +200,22 @@ namespace btui {
         WindowState newWindowState;
     };
     struct ResizeInfo {
-        uint32_t newWidth; //count of characters, *not pixels*
-        uint32_t newHeight; //count of characters, *not pixels*
+        union {
+            struct {
+                uint32_t newWidth; //count of characters, *not pixels*
+                uint32_t newHeight; //count of characters, *not pixels*
+            };
+            SizeU32 newSize;
+        };
     };
     struct ResizeCompleteInfo {
-        uint32_t newWidth; //count of characters, *not pixels*
-        uint32_t newHeight; //count of characters, *not pixels*
+        union {
+            struct {
+                uint32_t newWidth; //count of characters, *not pixels*
+                uint32_t newHeight; //count of characters, *not pixels*
+            };
+            SizeU32 newSize;
+        };
     };
     struct FileDropInfo {
         std::vector<std::wstring> filePaths;
@@ -223,7 +259,7 @@ namespace btui {
         bool allowTransparentBackgrounds;
         bool mouseContained;
         BufferGridCell* lastBuffer;
-        btui::BufferSize lastBufferSize;
+        SizeU32 lastBufferSize;
         WindowState lastWindowState;
 
         void UpdateFunction(bool* Initialized);
@@ -257,10 +293,10 @@ namespace btui {
         // The width and height of the buffer, as
         // well as functionality to copy it out.
 
-        btui::BufferSize BufferSize();
-        WindowBuffer CopyBufferOut();
-        bool CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer);
-        bool CopyBufferOut(WindowBuffer Buffer);
+        SizeU32 BufferSize();
+        BufferGrid CopyBufferOut();
+        bool CopyBufferOut(SizeU32 BufferSize, BufferGridCell* Buffer);
+        bool CopyBufferOut(BufferGrid Buffer);
 
         // Invalidates the client area for redrawing.
 
@@ -305,7 +341,7 @@ namespace btui {
         // Client repaint (buffer should be in
         // row-major order).
 
-        virtual void PaintBuffer(WindowBuffer Buffer) = 0;
+        virtual void PaintBuffer(BufferGrid Buffer) = 0;
 
         // Events
 

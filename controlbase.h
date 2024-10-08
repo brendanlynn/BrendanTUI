@@ -78,7 +78,7 @@ namespace btui {
             invalidateFunc();
         }
     public:
-        virtual void DrawControl(WindowBuffer Buffer, BufferPartition Partition) = 0;
+        virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) = 0;
 
         virtual void OnFocusGained(const FocusGainedControlInfo& Info) { }
         virtual void OnFocusLost(const FocusLostControlInfo& Info) { }
