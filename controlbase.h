@@ -64,4 +64,10 @@ namespace btui {
         virtual void OnMouseScroll(const MouseScrollControlInfo& Info) { };
         virtual void OnFileDrop(const FileDropControlInfo& Info) { };
     };
+
+    enum Align {
+        Start,
+        Middle,
+        End
+    };
 }
