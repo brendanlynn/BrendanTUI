@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "framework.h"
 
-#include "control.h"
+#include "controlbase.h"
 
 namespace btui {
     Control* FocusManager::GetFocusedControl() {
