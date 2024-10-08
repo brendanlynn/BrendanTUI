@@ -104,6 +104,16 @@ namespace btui {
             : x(X), y(Y), width(Width), height(Height) { }
     };
 
+    struct PointU32 {
+        uint32_t x;
+        uint32_t y;
+
+        PointU32()
+            : x(0), y(0) { }
+        PointU32(uint32_t X, uint32_t Y)
+            : x(X), y(Y) { }
+    };
+
     enum WindowState {
         Hidden,
         Minimized,
