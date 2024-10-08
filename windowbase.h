@@ -129,18 +129,33 @@ namespace btui {
         bool altPressed;
     };
     struct MouseClickInfo {
-        uint32_t x; //column of the char clicked
-        uint32_t y; //row of the char clicked
+        union {
+            struct {
+                uint32_t x; //column of the char clicked
+                uint32_t y; //row of the char clicked
+            };
+            PointU32 point;
+        };
         bool leftButton;
         bool rightButton;
     };
     struct MouseMoveInfo {
-        uint32_t x; //column of the char moved to
-        uint32_t y; //row of the char moved to
+        union {
+            struct {
+                uint32_t x; //column of the char moved to
+                uint32_t y; //row of the char moved to
+            };
+            PointU32 point;
+        };
     };
     struct MouseEnterInfo {
-        uint32_t x; //column of the char entered to
-        uint32_t y; //row of the char entered to
+        union {
+            struct {
+                uint32_t x; //column of the char entered to
+                uint32_t y; //row of the char entered to
+            };
+            PointU32 point;
+        };
     };
     struct MouseExitInfo { };
     struct MouseScrollInfo {
@@ -168,8 +183,13 @@ namespace btui {
     };
     struct FileDropInfo {
         std::vector<std::wstring> filePaths;
-        uint32_t mouseX; //column of the char the mouse was on when it dropped the file
-        uint32_t mouseY; //row of the char the mouse was on when it dropped the file
+        union {
+            struct {
+                uint32_t mouseX; //column of the char the mouse was on when it dropped the file
+                uint32_t mouseY; //row of the char the mouse was on when it dropped the file
+            };
+            PointU32 point;
+        };
     };
 
     namespace details {

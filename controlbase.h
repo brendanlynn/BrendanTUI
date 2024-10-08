@@ -6,16 +6,31 @@ namespace btui {
     class Control;
 
     struct MouseClickControlInfo {
-        uint32_t x;
-        uint32_t y;
+        union {
+            struct {
+                uint32_t x;
+                uint32_t y;
+            };
+            PointU32 point;
+        };
     };
     struct MouseEnterControlInfo {
-        uint32_t x;
-        uint32_t y;
+        union {
+            struct {
+                uint32_t x;
+                uint32_t y;
+            };
+            PointU32 point;
+        };
     };
     struct MouseMoveControlInfo {
-        uint32_t x;
-        uint32_t y;
+        union {
+            struct {
+                uint32_t x;
+                uint32_t y;
+            };
+            PointU32 point;
+        };
     };
     struct MouseExitControlInfo { };
     struct FocusGainedControlInfo {
@@ -32,8 +47,13 @@ namespace btui {
     };
     struct FileDropControlInfo {
         std::vector<std::wstring> filePaths;
-        uint32_t mouseX; //column of the char the mouse was on when it dropped the file
-        uint32_t mouseY; //row of the char the mouse was on when it dropped the file
+        union {
+            struct {
+                uint32_t mouseX; //column of the char the mouse was on when it dropped the file
+                uint32_t mouseY; //row of the char the mouse was on when it dropped the file
+            };
+            PointU32 point;
+        };
     };
 
     class FocusManager {
