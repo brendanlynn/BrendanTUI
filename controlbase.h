@@ -45,11 +45,18 @@ namespace btui {
 
     class Control {
         FocusManager* focusManager;
+        std::function<void()> invalidateFunc;
 
     protected:
-        Control(FocusManager* FocusManager)
-            : focusManager(FocusManager) { }
+        Control(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
+            : focusManager(FocusManager), invalidateFunc(std::move(InvalidateFunc)) { }
 
+        FocusManager* GetFocusManager() {
+            return focusManager;
+        }
+        void CallInvalidate() {
+            invalidateFunc();
+        }
     public:
         virtual void DrawControl(WindowBuffer Buffer, BufferPartition Partition) = 0;
 
