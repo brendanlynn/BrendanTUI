@@ -145,8 +145,12 @@ namespace btui {
             }
         }
 
-        inline RectU32 operator*(const RectU32& Other) {
+        inline RectU32 operator*(const RectU32& Other) const {
             return RectU32(*this) *= Other;
+        }
+
+        bool IsPointWithin(PointU32 Point) const {
+            return Point.x < x || Point.y < y || Point.x >= x + width || Point.y >= y + height;
         }
     };
 
