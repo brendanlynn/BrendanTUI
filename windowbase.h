@@ -74,6 +74,23 @@ namespace btui {
         inline bool operator!=(const PointU32& Other) const {
             return x != Other.x || y != Other.y;
         }
+
+        inline PointU32& operator+=(const PointU32& Other) {
+            x += Other.x;
+            y += Other.y;
+            return *this;
+        }
+        inline PointU32& operator-=(const PointU32& Other) {
+            x -= Other.x;
+            y -= Other.y;
+            return *this;
+        }
+        inline PointU32 operator+(const PointU32& Other) const {
+            return PointU32(*this) += Other;
+        }
+        inline PointU32 operator-(const PointU32& Other) const {
+            return PointU32(*this) -= Other;
+        }
     };
 
     struct RectU32 {
@@ -103,6 +120,33 @@ namespace btui {
         }
         inline bool operator!=(const RectU32& Other) const {
             return x != Other.x || y != Other.y || width != Other.width || height != Other.height;
+        }
+
+        inline RectU32& operator*=(const RectU32& Other) {
+            uint32_t endX = x + width;
+            uint32_t endY = y + height;
+            uint32_t otherEndX = Other.x + Other.width;
+            uint32_t otherEndY = Other.y + Other.height;
+
+            x = max(x, Other.x);
+            y = max(y, Other.y);
+            uint32_t outEndX = min(endX, otherEndX);
+            uint32_t outEndY = min(endY, otherEndY);
+
+            if (outEndX <= x || outEndY <= y) {
+                x = 0;
+                y = 0;
+                width = 0;
+                height = 0;
+            }
+            else {
+                width = outEndX - x;
+                height = outEndY - y;
+            }
+        }
+
+        inline RectU32 operator*(const RectU32& Other) {
+            return RectU32(*this) *= Other;
         }
     };
 
