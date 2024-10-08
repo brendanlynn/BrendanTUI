@@ -19,6 +19,42 @@ namespace btui {
         return (uint32_t)A << 24 | (uint32_t)R << 16 | (uint32_t)G << 8 | (uint32_t)B;
     }
 
+    static inline uint32_t OverlayColor(uint32_t Bottom, uint32_t Top) {
+        constexpr uint32_t maskA = 0xFF000000;
+        constexpr uint32_t maskR = 0x00FF0000;
+        constexpr uint32_t maskG = 0x0000FF00;
+        constexpr uint32_t maskB = 0x000000FF;
+
+        uint32_t bottomA = Bottom & maskA;
+        uint32_t bottomR = Bottom & maskR;
+        uint32_t bottomG = Bottom & maskG;
+        uint32_t bottomB = Bottom & maskB;
+
+        uint32_t topA = Top & maskA;
+        uint32_t topR = Top & maskR;
+        uint32_t topG = Top & maskG;
+        uint32_t topB = Top & maskB;
+
+        uint32_t topAlpha = topA >> 24;
+        uint32_t topAlphaInv = 0xFF - topA;
+
+        bottomR *= topAlphaInv;
+        bottomG *= topAlphaInv;
+        bottomB *= topAlphaInv;
+
+        topR *= topAlpha;
+        topG *= topAlpha;
+        topB *= topAlpha;
+
+        uint32_t outColor = (
+            ((bottomR + topR) & maskA) |
+            ((bottomG + topG) & maskR) |
+            ((bottomB + topB) & maskG)
+        ) >> 8;
+        
+        outColor |= (topA + bottomA * ((maskA - topA) >> 8)) & maskA;
+    }
+
     struct BufferGridCell {
         wchar_t character;
         uint32_t forecolor;
