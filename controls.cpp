@@ -118,6 +118,11 @@ namespace btui {
                     OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
         }
 
+        Canvas::Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer, Align HorizontalAlign, Align VerticalAlign, backgroundFill_t BackgroundFill)
+            : Control(FocusManager, InvalidateFunc), horizontalAlign(HorizontalAlign), verticalAlign(VerticalAlign), backgroundFill(BackgroundFill), buffer(Buffer.size, new BufferGridCell[Buffer.width * Buffer.height]), lastPartSize(0, 0) {
+            memcpy(buffer.buffer, Buffer.buffer, sizeof(BufferGridCell) * buffer.width * buffer.height);
+        }
+
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
             std::lock_guard<std::mutex> lock(mtx);
 
