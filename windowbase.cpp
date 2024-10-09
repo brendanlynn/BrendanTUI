@@ -71,6 +71,8 @@ namespace btui {
             ) >> 8;
 
         outColor |= (topA + bottomA * ((maskA - topA) >> 8)) & maskA;
+
+        return outColor;
     }
 
     void WindowBase::UpdateFunction(bool* Initialized) {
@@ -396,7 +398,7 @@ namespace btui {
                 lastBufferSize = { width, height };
                 lastBuffer = new BufferGridCell[width * height];
             }
-            PaintBuffer(WindowBuffer(width, height, lastBuffer));
+            PaintBuffer(BufferGrid(width, height, lastBuffer));
             mtx.unlock();
 
             // Monospaced font for rendering
@@ -461,32 +463,32 @@ namespace btui {
         return !isRunning.load();
     }
 
-    BufferSize WindowBase::BufferSize() {
+    SizeU32 WindowBase::BufferSize() {
         RECT winRect;
         bool success = InvokeOnWindowThread([this, &winRect]() {
             ::GetWindowRect(hwnd, &winRect);
         });
 
         if (success) {
-            btui::BufferSize bufSize;
+            SizeU32 bufSize;
             bufSize.width = (winRect.right - winRect.left) / charWidth;
             bufSize.height = (winRect.bottom - winRect.top) / charHeight;
             return bufSize;
         }
-        else return btui::BufferSize(0, 0);
+        else return SizeU32(0, 0);
     }
-    WindowBuffer WindowBase::CopyBufferOut() {
+    BufferGrid WindowBase::CopyBufferOut() {
         std::lock_guard<std::mutex> lock(mtx);
 
-        if (!lastBuffer) return WindowBuffer(0, 0, 0);
+        if (!lastBuffer) return BufferGrid(0, 0, 0);
 
-        btui::BufferSize bufSize = lastBufferSize;
+        SizeU32 bufSize = lastBufferSize;
         BufferGridCell* outBuffer = new BufferGridCell[bufSize.width * bufSize.height];
         memcpy(outBuffer, lastBuffer, sizeof(BufferGridCell) * bufSize.width * bufSize.height);
 
-        return WindowBuffer(bufSize, outBuffer);
+        return BufferGrid(bufSize, outBuffer);
     }
-    bool WindowBase::CopyBufferOut(btui::BufferSize BufferSize, BufferGridCell* Buffer) {
+    bool WindowBase::CopyBufferOut(SizeU32 BufferSize, BufferGridCell* Buffer) {
         std::lock_guard<std::mutex> lock(mtx);
 
         if (!lastBuffer) return false;
@@ -497,7 +499,7 @@ namespace btui {
 
         return true;
     }
-    bool WindowBase::CopyBufferOut(WindowBuffer Buffer) {
+    bool WindowBase::CopyBufferOut(BufferGrid Buffer) {
         return CopyBufferOut(Buffer.size, Buffer.buffer);
     }
 
