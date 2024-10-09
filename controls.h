@@ -23,8 +23,7 @@ namespace btui {
             uint32_t backgroundColor;
             SizeU32 lastPartSize;
 
-        protected:
-            virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
+            void DrawControl(BufferGrid Buffer, RectU32 Partition) override final;
 
         public:
             PointU32 ControlCoordsToCanvasCoords(PointU32 ControlCoords);
