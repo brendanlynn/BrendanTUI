@@ -91,6 +91,31 @@ namespace btui {
             for (uint32_t jR = ioInfo.readY, jW = ioInfo.writeY; jR < rYMax; ++jR, ++jW) {
                 Buffer.buffer[jW * Buffer.width + iW] = buffer.buffer[jR * Buffer.width + iR];
             }
+
+            uint32_t writeXMax = ioInfo.writeX + ioInfo.ioWidth;
+            uint32_t writeYMax = ioInfo.writeY + ioInfo.ioHeight;
+            uint32_t partXMax = Partition.x + Partition.width;
+            uint32_t partYMax = Partition.y + Partition.height;
+
+            if (Partition.y < ioInfo.writeY)
+                for (uint32_t i = Partition.x; i < partXMax; ++i)
+                for (uint32_t j = Partition.y; j < ioInfo.writeY; ++j)
+                    OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
+
+            if (writeYMax < partYMax)
+                for (uint32_t i = Partition.x; i < partXMax; ++i)
+                for (uint32_t j = writeYMax; j < partYMax; ++j)
+                    OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
+
+            if (ioInfo.writeY < writeYMax)
+                for (uint32_t i = Partition.x; i < ioInfo.writeX; ++i)
+                for (uint32_t j = ioInfo.writeY; j < writeYMax; ++j)
+                    OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
+
+            if (ioInfo.writeY < writeYMax)
+                for (uint32_t i = writeXMax; i < partXMax; ++i)
+                for (uint32_t j = ioInfo.writeY; j < writeYMax; ++j)
+                    OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
         }
 
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
@@ -172,15 +197,15 @@ namespace btui {
             verticalAlign = NewAlign;
         }
 
-        uint32_t Canvas::GetBackgroundColor() {
+        backgroundFill_t Canvas::GetBackgroundFill() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return backgroundColor;
+            return backgroundFill;
         }
-        void Canvas::SetBackgroundColor(uint32_t NewColor) {
+        void Canvas::SetBackgroundFill(backgroundFill_t NewFill) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            backgroundColor = NewColor;
+            backgroundFill = NewFill;
         }
     }
 }

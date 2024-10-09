@@ -4,7 +4,7 @@
 
 namespace btui {
     namespace controls {
-        // For reference (borders and table style):
+        // For reference, (borders and table style)
         //
         // ┌────────────┬────────────┐
         // │ Cell 1.1   │ Cell 1.2   │
@@ -20,7 +20,7 @@ namespace btui {
             BufferGrid buffer;
             Align horizontalAlign;
             Align verticalAlign;
-            uint32_t backgroundColor;
+            backgroundFill_t backgroundFill;
             SizeU32 lastPartSize;
 
             void DrawControl(BufferGrid Buffer, RectU32 Partition) override final;
@@ -39,8 +39,8 @@ namespace btui {
             Align GetVerticalAlign();
             void SetVerticalAlign(Align NewAlign);
 
-            uint32_t GetBackgroundColor();
-            void SetBackgroundColor(uint32_t NewColor);
+            backgroundFill_t GetBackgroundFill();
+            void SetBackgroundFill(backgroundFill_t NewFill);
         };
     }
 }
