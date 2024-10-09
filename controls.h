@@ -96,7 +96,7 @@ namespace btui {
             backgroundFill_t fillDecompressed;
 
         protected:
-            void SetCompressed(bool Compressed);
+            virtual void SetCompressed(bool Compressed);
             
         public:
             Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, bool TextWrap = true, bool TextStretch = true, backgroundFill_t BackgroundFillCompressed = std::monostate{}, backgroundFill_t BackgroundFillDecompressed = std::monostate{})
@@ -104,13 +104,13 @@ namespace btui {
 
             bool IsCompressed();
 
-            void SetBackgroundFill(backgroundFill_t NewFill) override final; // Sets both.
+            virtual void SetBackgroundFill(backgroundFill_t NewFill) override; // Sets both.
 
             backgroundFill_t GetBackgroundFillCompressed();
-            void SetBackgroundFillCompressed(backgroundFill_t NewFill);
+            virtual void SetBackgroundFillCompressed(backgroundFill_t NewFill);
 
             backgroundFill_t GetBackgroundFillDecompressed();
-            void SetBackgroundFillDecompressed(backgroundFill_t NewFill);
+            virtual void SetBackgroundFillDecompressed(backgroundFill_t NewFill);
         };
     }
 }
