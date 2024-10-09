@@ -164,31 +164,28 @@ namespace btui {
             return x != Other.x || y != Other.y || width != Other.width || height != Other.height;
         }
 
-        constexpr inline RectU32& operator*=(const RectU32& Other) {
-            uint32_t endX = x + width;
-            uint32_t endY = y + height;
-            uint32_t otherEndX = Other.x + Other.width;
-            uint32_t otherEndY = Other.y + Other.height;
+        static constexpr inline RectU32 Intersection(const RectU32& Rect1, const RectU32& Rect2) {
+            RectU32 out;
 
-            x = max(x, Other.x);
-            y = max(y, Other.y);
-            uint32_t outEndX = min(endX, otherEndX);
-            uint32_t outEndY = min(endY, otherEndY);
+            uint32_t r1EndX = Rect1.x + Rect1.width;
+            uint32_t r1EndY = Rect1.y + Rect1.height;
+            uint32_t r2EndX = Rect2.x + Rect2.width;
+            uint32_t r2EndY = Rect2.y + Rect2.height;
 
-            if (outEndX <= x || outEndY <= y) {
-                x = 0;
-                y = 0;
-                width = 0;
-                height = 0;
+            out.x = max(Rect1.x, Rect2.x);
+            out.y = max(Rect1.y, Rect2.y);
+            uint32_t outEndX = min(r1EndX, r2EndX);
+            uint32_t outEndY = min(r1EndY, r2EndY);
+
+            if (outEndX <= out.x || outEndY <= out.y) {
+                out.x = 0;
+                out.y = 0;
             }
             else {
-                width = outEndX - x;
-                height = outEndY - y;
+                out.width = outEndX - Rect1.x;
+                out.height = outEndY - Rect1.y;
             }
-        }
-
-        constexpr inline RectU32 operator*(const RectU32& Other) const {
-            return RectU32(*this) *= Other;
+            return out;
         }
 
         constexpr bool IsPointWithin(PointU32 Point) const {
