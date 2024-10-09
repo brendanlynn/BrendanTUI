@@ -182,8 +182,8 @@ namespace btui {
                 out.y = 0;
             }
             else {
-                out.width = outEndX - Rect1.x;
-                out.height = outEndY - Rect1.y;
+                out.width = outEndX - out.x;
+                out.height = outEndY - out.y;
             }
             return out;
         }
