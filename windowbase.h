@@ -12,22 +12,59 @@
 #include <windows.h>
 
 namespace btui {
-    static inline uint32_t FromRGB(uint8_t R, uint8_t G, uint8_t B) {
+    static constexpr inline uint32_t FromRGB(uint8_t R, uint8_t G, uint8_t B) {
         return (uint32_t)R << 16 | (uint32_t)G << 8 | (uint32_t)B;
     }
-    static inline uint32_t FromARGB(uint8_t A, uint8_t R, uint8_t G, uint8_t B) {
+    static constexpr inline uint32_t FromARGB(uint8_t A, uint8_t R, uint8_t G, uint8_t B) {
         return (uint32_t)A << 24 | (uint32_t)R << 16 | (uint32_t)G << 8 | (uint32_t)B;
     }
 
-    uint32_t OverlayColor(uint32_t Bottom, uint32_t Top);
+    static constexpr inline uint32_t OverlayColor(uint32_t Bottom, uint32_t Top) {
+        constexpr uint32_t maskA = 0xFF000000;
+        constexpr uint32_t maskR = 0x00FF0000;
+        constexpr uint32_t maskG = 0x0000FF00;
+        constexpr uint32_t maskB = 0x000000FF;
+
+        uint32_t bottomA = Bottom & maskA;
+        uint32_t bottomR = Bottom & maskR;
+        uint32_t bottomG = Bottom & maskG;
+        uint32_t bottomB = Bottom & maskB;
+
+        uint32_t topA = Top & maskA;
+        uint32_t topR = Top & maskR;
+        uint32_t topG = Top & maskG;
+        uint32_t topB = Top & maskB;
+
+        uint32_t topAlpha = topA >> 24;
+        uint32_t topAlphaInv = 0xFF - topA;
+
+        bottomR *= topAlphaInv;
+        bottomG *= topAlphaInv;
+        bottomB *= topAlphaInv;
+
+        topR *= topAlpha;
+        topG *= topAlpha;
+        topB *= topAlpha;
+
+        uint32_t outColor = (
+            ((bottomR + topR) & maskA) |
+            ((bottomG + topG) & maskR) |
+            ((bottomB + topB) & maskG)
+            ) >> 8;
+
+        outColor |= (topA + bottomA * ((maskA - topA) >> 8)) & maskA;
+
+        return outColor;
+    }
 
     struct BufferGridCell {
         wchar_t character;
         uint32_t forecolor;
         uint32_t backcolor;
 
-        BufferGridCell() = default;
-        inline BufferGridCell(wchar_t Character, uint32_t Forecolor, uint32_t Backcolor)
+        constexpr inline BufferGridCell()
+            : character(L' '), forecolor(0xFFFFFFFF), backcolor(0xFF000000) { }
+        constexpr inline BufferGridCell(wchar_t Character, uint32_t Forecolor, uint32_t Backcolor)
             : character(Character), forecolor(Forecolor), backcolor(Backcolor) { }
     };
 
@@ -35,14 +72,15 @@ namespace btui {
         uint32_t width;
         uint32_t height;
 
-        SizeU32() = default;
-        inline SizeU32(uint32_t Width, uint32_t Height)
+        constexpr inline SizeU32()
+            : width(0), height(0) { }
+        constexpr inline SizeU32(uint32_t Width, uint32_t Height)
             : width(Width), height(Height) { }
 
-        inline bool operator==(const SizeU32& Other) const {
+        inline constexpr bool operator==(const SizeU32& Other) const {
             return width == Other.width && height == Other.height;
         }
-        inline bool operator!=(const SizeU32& Other) const {
+        inline constexpr bool operator!=(const SizeU32& Other) const {
             return width != Other.width || height != Other.height;
         }
     };
@@ -54,9 +92,11 @@ namespace btui {
         };
         BufferGridCell* buffer;
 
-        BufferGrid(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
+        constexpr inline BufferGrid()
+            : width(0), height(0), buffer(0) { }
+        constexpr inline BufferGrid(uint32_t Width, uint32_t Height, BufferGridCell* Buffer)
             : width(Width), height(Height), buffer(Buffer) { }
-        BufferGrid(SizeU32 BufferSize, BufferGridCell* Buffer)
+        constexpr inline BufferGrid(SizeU32 BufferSize, BufferGridCell* Buffer)
             : size(BufferSize), buffer(Buffer) { }
     };
 
@@ -64,31 +104,32 @@ namespace btui {
         uint32_t x;
         uint32_t y;
 
-        inline PointU32() = default;
-        inline PointU32(uint32_t X, uint32_t Y)
+        constexpr inline PointU32()
+            : x(0), y(0) { }
+        constexpr inline PointU32(uint32_t X, uint32_t Y)
             : x(X), y(Y) { }
 
-        inline bool operator==(const PointU32& Other) const {
+        constexpr inline bool operator==(const PointU32& Other) const {
             return x == Other.x && y == Other.y;
         }
-        inline bool operator!=(const PointU32& Other) const {
+        constexpr inline bool operator!=(const PointU32& Other) const {
             return x != Other.x || y != Other.y;
         }
 
-        inline PointU32& operator+=(const PointU32& Other) {
+        constexpr inline PointU32& operator+=(const PointU32& Other) {
             x += Other.x;
             y += Other.y;
             return *this;
         }
-        inline PointU32& operator-=(const PointU32& Other) {
+        constexpr inline PointU32& operator-=(const PointU32& Other) {
             x -= Other.x;
             y -= Other.y;
             return *this;
         }
-        inline PointU32 operator+(const PointU32& Other) const {
+        constexpr inline PointU32 operator+(const PointU32& Other) const {
             return PointU32(*this) += Other;
         }
-        inline PointU32 operator-(const PointU32& Other) const {
+        constexpr inline PointU32 operator-(const PointU32& Other) const {
             return PointU32(*this) -= Other;
         }
     };
@@ -109,20 +150,21 @@ namespace btui {
             SizeU32 size;
         };
 
-        RectU32() = default;
-        inline RectU32(uint32_t X, uint32_t Y, uint32_t Width, uint32_t Height)
+        constexpr inline RectU32()
+            : x(0), y(0), width(0), height(0) { }
+        constexpr inline RectU32(uint32_t X, uint32_t Y, uint32_t Width, uint32_t Height)
             : x(X), y(Y), width(Width), height(Height) { }
-        inline RectU32(PointU32 Point, SizeU32 Size)
+        constexpr inline RectU32(PointU32 Point, SizeU32 Size)
             : point(Point), size(Size) { }
 
-        inline bool operator==(const RectU32& Other) const {
+        constexpr inline bool operator==(const RectU32& Other) const {
             return x == Other.x && y == Other.y && width == Other.width && height == Other.height;
         }
-        inline bool operator!=(const RectU32& Other) const {
+        constexpr inline bool operator!=(const RectU32& Other) const {
             return x != Other.x || y != Other.y || width != Other.width || height != Other.height;
         }
 
-        inline RectU32& operator*=(const RectU32& Other) {
+        constexpr inline RectU32& operator*=(const RectU32& Other) {
             uint32_t endX = x + width;
             uint32_t endY = y + height;
             uint32_t otherEndX = Other.x + Other.width;
@@ -145,11 +187,11 @@ namespace btui {
             }
         }
 
-        inline RectU32 operator*(const RectU32& Other) const {
+        constexpr inline RectU32 operator*(const RectU32& Other) const {
             return RectU32(*this) *= Other;
         }
 
-        bool IsPointWithin(PointU32 Point) const {
+        constexpr bool IsPointWithin(PointU32 Point) const {
             return Point.x < x || Point.y < y || Point.x >= x + width || Point.y >= y + height;
         }
     };
