@@ -1,6 +1,7 @@
 #pragma once
 
 #include "windowbase.h"
+#include <variant>
 
 namespace btui {
     class Control;
@@ -97,4 +98,8 @@ namespace btui {
         Middle,
         End
     };
+
+    using backgroundFill_t = std::variant<std::monostate, BufferGridCell, uint32_t>;
+
+    void OverwriteWithBackgroundFill(BufferGridCell& Cell, const backgroundFill_t& BackgroundFill);
 }
