@@ -119,8 +119,14 @@ namespace btui {
         }
 
         Canvas::Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer, Align HorizontalAlign, Align VerticalAlign, backgroundFill_t BackgroundFill)
-            : Control(FocusManager, InvalidateFunc), horizontalAlign(HorizontalAlign), verticalAlign(VerticalAlign), backgroundFill(BackgroundFill), buffer(Buffer.size, new BufferGridCell[Buffer.width * Buffer.height]), lastPartSize(0, 0) {
-            memcpy(buffer.buffer, Buffer.buffer, sizeof(BufferGridCell) * buffer.width * buffer.height);
+            : Control(FocusManager, InvalidateFunc), horizontalAlign(HorizontalAlign), verticalAlign(VerticalAlign), backgroundFill(BackgroundFill) {
+            uint32_t product = buffer.width * buffer.height;
+            if (product && Buffer.buffer) {
+                Buffer.width = buffer.width;
+                Buffer.height = buffer.height;
+                Buffer.buffer = new BufferGridCell[product];
+                memcpy(buffer.buffer, Buffer.buffer, sizeof(BufferGridCell) * product);
+            }
         }
 
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
@@ -160,7 +166,7 @@ namespace btui {
 
             BufferGrid outBuffer(buffer.width, buffer.height, new BufferGridCell[totalLength]);
 
-            memcpy(outBuffer.buffer, buffer.buffer, sizeof(BufferGridCell) * totalLength);
+            if (totalLength && buffer.buffer) memcpy(outBuffer.buffer, buffer.buffer, sizeof(BufferGridCell) * totalLength);
 
             return outBuffer;
         }

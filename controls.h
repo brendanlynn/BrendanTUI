@@ -26,7 +26,7 @@ namespace btui {
             void DrawControl(BufferGrid Buffer, RectU32 Partition) override final;
 
         public:
-            Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer, Align HorizontalAlign, Align VerticalAlign, backgroundFill_t BackgroundFill);
+            Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer = BufferGrid(), Align HorizontalAlign = Align::Middle, Align VerticalAlign = Align::Middle, backgroundFill_t BackgroundFill = std::monostate{});
 
             PointU32 ControlCoordsToCanvasCoords(PointU32 ControlCoords);
             PointU32 CanvasCoordsToControlCoords(PointU32 CanvasCoords);
