@@ -33,16 +33,16 @@ namespace btui {
             PointU32 CanvasCoordsToControlCoords(PointU32 CanvasCoords);
 
             virtual void CopyInCanvas(const BufferGrid& NewBuffer);
-            virtual BufferGrid CopyOutCanvas();
+            BufferGrid CopyOutCanvas();
             virtual BufferGrid ExchangeCanvas(const BufferGrid& NewBuffer);
 
-            virtual Align GetHorizontalAlign();
+            Align GetHorizontalAlign();
             virtual void SetHorizontalAlign(Align NewAlign);
 
-            virtual Align GetVerticalAlign();
+            Align GetVerticalAlign();
             virtual void SetVerticalAlign(Align NewAlign);
 
-            virtual backgroundFill_t GetBackgroundFill();
+            backgroundFill_t GetBackgroundFill();
             virtual void SetBackgroundFill(backgroundFill_t NewFill);
         };
 
@@ -65,49 +65,52 @@ namespace btui {
             inline Label(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, bool TextWrap = true, bool TextStretch = true, backgroundFill_t BackgroundFill = std::monostate{})
                 : Control(FocusManager, InvalidateFunc), text(Text), textBackcolor(TextBackcolor), textForecolor(TextForecolor), textHorizontalAlign(TextHorizontalAlign), textVerticalAlign(TextVerticalAlign), textWrap(TextWrap), textStretch(TextStretch), backgroundFill(BackgroundFill) { }
 
-            virtual std::wstring GetText();
+            std::wstring GetText();
             virtual void SetText(const std::wstring& NewText);
 
-            virtual uint32_t GetTextBackcolor();
+            uint32_t GetTextBackcolor();
             virtual void SetTextBackcolor(uint32_t NewBackcolor);
 
-            virtual uint32_t GetTextForecolor();
+            uint32_t GetTextForecolor();
             virtual void SetTextForecolor(uint32_t NewForecolor);
 
-            virtual Align GetTextHorizontalAlign();
+            Align GetTextHorizontalAlign();
             virtual void SetTextHorizontalAlign(Align NewAlign);
 
-            virtual Align GetTextVerticalAlign();
+            Align GetTextVerticalAlign();
             virtual void SetTextVerticalAlign(Align NewAlign);
 
-            virtual bool GetTextWrap();
+            bool GetTextWrap();
             virtual void SetTextWrap(bool Wrap);
 
-            virtual bool GetTextStretch();
+            bool GetTextStretch();
             virtual void SetTextStretch(bool Stretch);
 
-            virtual backgroundFill_t GetBackgroundFill();
+            backgroundFill_t GetBackgroundFill();
             virtual void SetBackgroundFill(backgroundFill_t NewFill);
         };
 
         class Button : public Label {
             bool isCompressed;
             backgroundFill_t fillCompressed;
-            backgroundFill_t fillUncompressed;
+            backgroundFill_t fillDecompressed;
 
+        protected:
+            void SetCompressed(bool Compressed);
+            
         public:
-            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, bool TextWrap = true, bool TextStretch = true, backgroundFill_t BackgroundFillCompressed = std::monostate{}, backgroundFill_t BackgroundFillUncompressed = std::monostate{})
-                : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrap, TextStretch, BackgroundFillUncompressed), isCompressed(false), fillCompressed(BackgroundFillCompressed), fillUncompressed(BackgroundFillUncompressed) { }
+            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, bool TextWrap = true, bool TextStretch = true, backgroundFill_t BackgroundFillCompressed = std::monostate{}, backgroundFill_t BackgroundFillDecompressed = std::monostate{})
+                : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrap, TextStretch, BackgroundFillDecompressed), isCompressed(false), fillCompressed(BackgroundFillCompressed), fillDecompressed(BackgroundFillDecompressed) { }
 
             bool IsCompressed();
 
-            void SetBackgroundFill(backgroundFill_t NewFill) override; // Sets both.
+            void SetBackgroundFill(backgroundFill_t NewFill) override final; // Sets both.
 
             backgroundFill_t GetBackgroundFillCompressed();
-            void SetBackgroundFillCompressed(backgroundFill_t NewSurrounding);
+            void SetBackgroundFillCompressed(backgroundFill_t NewFill);
 
-            backgroundFill_t GetBackgroundFillUncompressed();
-            void SetBackgroundFillUncompressed(backgroundFill_t NewSurrounding);
+            backgroundFill_t GetBackgroundFillDecompressed();
+            void SetBackgroundFillDecompressed(backgroundFill_t NewFill);
         };
     }
 }
