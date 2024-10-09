@@ -14,7 +14,7 @@ namespace btui {
         // │ Cell 3.1   │ Cell 3.2   │
         // └────────────┴────────────┘
 
-        class Canvas : Control {
+        class Canvas : public Control {
             std::mutex mtx;
 
             BufferGrid buffer;
@@ -23,7 +23,8 @@ namespace btui {
             backgroundFill_t backgroundFill;
             SizeU32 lastPartSize;
 
-            void DrawControl(BufferGrid Buffer, RectU32 Partition) override final;
+        protected:
+            virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
 
         public:
             Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer = BufferGrid(), Align HorizontalAlign = Align::Middle, Align VerticalAlign = Align::Middle, backgroundFill_t BackgroundFill = std::monostate{});
@@ -31,18 +32,18 @@ namespace btui {
             PointU32 ControlCoordsToCanvasCoords(PointU32 ControlCoords);
             PointU32 CanvasCoordsToControlCoords(PointU32 CanvasCoords);
 
-            void CopyInCanvas(const BufferGrid& NewBuffer);
-            BufferGrid CopyOutCanvas();
-            BufferGrid ExchangeCanvas(const BufferGrid& NewBuffer);
+            virtual void CopyInCanvas(const BufferGrid& NewBuffer);
+            virtual BufferGrid CopyOutCanvas();
+            virtual BufferGrid ExchangeCanvas(const BufferGrid& NewBuffer);
 
-            Align GetHorizontalAlign();
-            void SetHorizontalAlign(Align NewAlign);
+            virtual Align GetHorizontalAlign();
+            virtual void SetHorizontalAlign(Align NewAlign);
 
-            Align GetVerticalAlign();
-            void SetVerticalAlign(Align NewAlign);
+            virtual Align GetVerticalAlign();
+            virtual void SetVerticalAlign(Align NewAlign);
 
-            backgroundFill_t GetBackgroundFill();
-            void SetBackgroundFill(backgroundFill_t NewFill);
+            virtual backgroundFill_t GetBackgroundFill();
+            virtual void SetBackgroundFill(backgroundFill_t NewFill);
         };
         //class Label : Control {
         //    std::mutex mtx;
