@@ -156,14 +156,9 @@ namespace btui {
             return horizontalAlign;
         }
         void Canvas::SetHorizontalAlign(Align NewAlign) {
-            ExchangeHorizontalAlign(NewAlign);
-        }
-        Align Canvas::ExchangeHorizontalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            std::swap(horizontalAlign, NewAlign);
-
-            return NewAlign;
+            horizontalAlign = NewAlign;
         }
 
         Align Canvas::GetVerticalAlign() {
@@ -172,14 +167,9 @@ namespace btui {
             return verticalAlign;
         }
         void Canvas::SetVerticalAlign(Align NewAlign) {
-            ExchangeVerticalAlign(NewAlign);
-        }
-        Align Canvas::ExchangeVerticalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            std::swap(verticalAlign, NewAlign);
-
-            return NewAlign;
+            verticalAlign = NewAlign;
         }
 
         uint32_t Canvas::GetBackgroundColor() {
@@ -188,14 +178,9 @@ namespace btui {
             return backgroundColor;
         }
         void Canvas::SetBackgroundColor(uint32_t NewColor) {
-            ExchangeBackgroundColor(NewColor);
-        }
-        uint32_t Canvas::ExchangeBackgroundColor(uint32_t NewColor) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            std::swap(backgroundColor, NewColor);
-
-            return NewColor;
+            backgroundColor = NewColor;
         }
     }
 }

@@ -35,15 +35,12 @@ namespace btui {
 
             Align GetHorizontalAlign();
             void SetHorizontalAlign(Align NewAlign);
-            Align ExchangeHorizontalAlign(Align NewAlign);
 
             Align GetVerticalAlign();
             void SetVerticalAlign(Align NewAlign);
-            Align ExchangeVerticalAlign(Align NewAlign);
 
             uint32_t GetBackgroundColor();
             void SetBackgroundColor(uint32_t NewColor);
-            uint32_t ExchangeBackgroundColor(uint32_t NewColor);
         };
     }
 }
