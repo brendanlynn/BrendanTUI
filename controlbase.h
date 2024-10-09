@@ -14,6 +14,9 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline MouseClickControlInfo()
+            : point() { }
     };
     struct MouseEnterControlInfo {
         union {
@@ -23,6 +26,9 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline MouseEnterControlInfo()
+            : point() { }
     };
     struct MouseMoveControlInfo {
         union {
@@ -32,19 +38,34 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline MouseMoveControlInfo()
+            : point() { }
     };
     struct MouseExitControlInfo { };
     struct FocusGainedControlInfo {
         Control* lastBeholder;
+
+        constexpr inline FocusGainedControlInfo()
+            : lastBeholder(0) { }
     };
     struct FocusLostControlInfo {
         Control* newBeholder;
+
+        constexpr inline FocusLostControlInfo()
+            : newBeholder(0) { }
     };
     struct MouseScrollControlInfo {
         int32_t scrollAmount;
+
+        constexpr inline MouseScrollControlInfo()
+            : scrollAmount(0) { }
     };
     struct TextInputControlInfo {
         std::wstring inputText;
+
+        constexpr inline TextInputControlInfo()
+            : inputText(L"") { }
     };
     struct FileDropControlInfo {
         std::vector<std::wstring> filePaths;
@@ -55,11 +76,17 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline FileDropControlInfo()
+            : point() { }
     };
 
     class FocusManager {
         std::atomic<Control*> focusedControl;
     public:
+        inline FocusManager()
+            : focusedControl(0) { }
+
         virtual Control* GetFocusedControl();
         virtual void SetFocusedControl(Control* NewFocus);
     };

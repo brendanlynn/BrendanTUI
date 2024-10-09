@@ -26,6 +26,9 @@ struct CanvasIoInfo {
         };
         btui::PointU32 writePoint;
     };
+
+    constexpr inline CanvasIoInfo()
+        : ioSize(), readPoint(), writePoint() { }
 };
 
 std::optional<CanvasIoInfo> GetCanvasIoInfo(btui::SizeU32 CanvasSize, btui::SizeU32 PartitionSize, btui::Align VerticalAlign, btui::Align HorizontalAlign) {

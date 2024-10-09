@@ -206,6 +206,9 @@ namespace btui {
         bool shiftPressed;
         bool ctrlPressed;
         bool altPressed;
+
+        constexpr inline KeyPressInfo()
+            : keyChar('\0'), keyCode(0), shiftPressed(0), ctrlPressed(0), altPressed(0) { }
     };
     struct MouseClickInfo {
         union {
@@ -217,6 +220,9 @@ namespace btui {
         };
         bool leftButton;
         bool rightButton;
+
+        constexpr inline MouseClickInfo()
+            : point(), leftButton(0), rightButton(0) { }
     };
     struct MouseMoveInfo {
         union {
@@ -226,6 +232,9 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline MouseMoveInfo()
+            : point() { }
     };
     struct MouseEnterInfo {
         union {
@@ -235,22 +244,37 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        constexpr inline MouseEnterInfo()
+            : point() { }
     };
     struct MouseExitInfo { };
     struct MouseScrollInfo {
         int32_t scrollAmount;
+
+        constexpr inline MouseScrollInfo()
+            : scrollAmount(0) { }
     };
     struct CloseRequestInfo {
         bool canCancel;
+
+        constexpr inline CloseRequestInfo()
+            : canCancel(0) { }
     };
     struct DisposedInfo { };
     struct TextInputInfo {
         std::wstring inputText;
+
+        constexpr inline TextInputInfo()
+            : inputText(L"") { }
     };
     struct FocusGainedInfo { };
     struct FocusLostInfo { };
     struct WindowStateChangeInfo {
         WindowState newWindowState;
+
+        constexpr inline WindowStateChangeInfo()
+            : newWindowState((WindowState)~0) { }
     };
     struct ResizeInfo {
         union {
@@ -260,6 +284,9 @@ namespace btui {
             };
             SizeU32 newSize;
         };
+
+        constexpr inline ResizeInfo()
+            : newSize() { }
     };
     struct ResizeCompleteInfo {
         union {
@@ -269,6 +296,9 @@ namespace btui {
             };
             SizeU32 newSize;
         };
+
+        constexpr inline ResizeCompleteInfo()
+            : newSize() { }
     };
     struct FileDropInfo {
         std::vector<std::wstring> filePaths;
@@ -279,6 +309,9 @@ namespace btui {
             };
             PointU32 point;
         };
+
+        inline FileDropInfo()
+            : filePaths(), point() { }
     };
 
     namespace details {
