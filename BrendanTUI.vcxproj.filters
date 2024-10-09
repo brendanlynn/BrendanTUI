@@ -27,6 +27,9 @@
     <ClInclude Include="controlbase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="controls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windowbase.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="controlbase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="controls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
