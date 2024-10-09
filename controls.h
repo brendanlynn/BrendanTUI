@@ -42,5 +42,38 @@ namespace btui {
             backgroundFill_t GetBackgroundFill();
             void SetBackgroundFill(backgroundFill_t NewFill);
         };
+        //class Label : Control {
+        //    std::mutex mtx;
+        //
+        //    std::wstring text;
+        //    uint32_t textBackcolor;
+        //    uint32_t textForecolor;
+        //    Align textHorizontalAlign;
+        //    Align textVerticalAlign;
+        //    backgroundFill_t surrounding;
+        //};
+        //class Button : Control {
+        //    std::mutex mtx;
+        //
+        //    std::wstring text;
+        //    uint32_t textBackcolor;
+        //    uint32_t textForecolor;
+        //    Align textHorizontalAlign;
+        //    Align textVerticalAlign;
+        //    backgroundFill_t surroundingSelected;
+        //    backgroundFill_t surroundingUnselected;
+        //};
+        //class Table : Control {
+        //    std::mutex mtx;
+        //
+        //    uint32_t columnCount;
+        //    uint32_t rowCount;
+        // 
+        //    // Other stuff, maybe? Merged cells?
+        //    // Pointers to child controls? (NOT
+        //    // UNIQUE POINTERS!!!, just Control*-
+        //    // pointers. :). Something else will
+        //    // have ownership/responsibility.)
+        //};
     }
 }
