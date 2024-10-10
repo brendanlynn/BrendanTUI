@@ -493,5 +493,82 @@ namespace btui {
                 }
             }
         }
+
+        std::wstring Label::GetText() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return text;
+        }
+        void Label::SetText(const std::wstring& NewText) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            text = NewText;
+        }
+
+        uint32_t Label::GetTextBackcolor() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return textBackcolor;
+        }
+        void Label::SetTextBackcolor(uint32_t NewBackcolor) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            textBackcolor = NewBackcolor;
+        }
+
+        uint32_t Label::GetTextForecolor() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return textForecolor;
+        }
+        void Label::SetTextForecolor(uint32_t NewForecolor) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            textForecolor = NewForecolor;
+        }
+
+        Align Label::GetTextHorizontalAlign() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return textHorizontalAlign;
+        }
+        void Label::SetTextHorizontalAlign(Align NewAlign) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            textHorizontalAlign = NewAlign;
+        }
+
+        Align Label::GetTextVerticalAlign() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return textVerticalAlign;
+        }
+        void Label::SetTextVerticalAlign(Align NewAlign) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            textVerticalAlign = NewAlign;
+        }
+
+        WrapStyle Label::GetTextWrapStyle() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return textWrapStyle;
+        }
+        void Label::SetTextWrapStyle(WrapStyle WrapStyle) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            textWrapStyle = WrapStyle;
+        }
+
+        backgroundFill_t Label::GetBackgroundFill() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return backgroundFill;
+        }
+        void Label::SetBackgroundFill(backgroundFill_t NewFill) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            backgroundFill = NewFill;
+        }
     }
 }
