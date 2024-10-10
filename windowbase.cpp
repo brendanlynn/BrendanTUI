@@ -164,13 +164,29 @@ namespace btui {
             mousePt.y = GetLParamY(LParam);
             ScreenToClient(hwnd, &mousePt);
 
-            MouseClickInfo info;
+            MouseDownInfo info;
             info.x = mousePt.x / charWidth;
             info.y = mousePt.y / charHeight;
             info.leftButton = (Msg == WM_LBUTTONDOWN);
             info.rightButton = (Msg == WM_RBUTTONDOWN);
 
-            OnMouseClick(info);
+            OnMouseDown(info);
+            return 0;
+        }
+        case WM_LBUTTONUP:
+        case WM_RBUTTONUP: {
+            POINT mousePt;
+            mousePt.x = GetLParamX(LParam);
+            mousePt.y = GetLParamY(LParam);
+            ScreenToClient(hwnd, &mousePt);
+
+            MouseUpInfo info;
+            info.x = mousePt.x / charWidth;
+            info.y = mousePt.y / charHeight;
+            info.leftButton = (Msg == WM_LBUTTONUP);
+            info.rightButton = (Msg == WM_RBUTTONUP);
+
+            OnMouseUp(info);
             return 0;
         }
         case WM_MOUSEMOVE: {

@@ -210,7 +210,7 @@ namespace btui {
         constexpr inline KeyPressInfo()
             : keyChar('\0'), keyCode(0), shiftPressed(0), ctrlPressed(0), altPressed(0) { }
     };
-    struct MouseClickInfo {
+    struct MouseDownInfo {
         union {
             struct {
                 uint32_t x; //column of the char clicked
@@ -221,7 +221,21 @@ namespace btui {
         bool leftButton;
         bool rightButton;
 
-        constexpr inline MouseClickInfo()
+        constexpr inline MouseDownInfo()
+            : point(), leftButton(0), rightButton(0) { }
+    };
+    struct MouseUpInfo {
+        union {
+            struct {
+                uint32_t x; //column of the char clicked
+                uint32_t y; //row of the char clicked
+            };
+            PointU32 point;
+        };
+        bool leftButton;
+        bool rightButton;
+
+        constexpr inline MouseUpInfo()
             : point(), leftButton(0), rightButton(0) { }
     };
     struct MouseMoveInfo {
@@ -432,7 +446,8 @@ namespace btui {
         // Events
 
         virtual void OnKeyPress(const KeyPressInfo& Info) { };
-        virtual void OnMouseClick(const MouseClickInfo& Info) { };
+        virtual void OnMouseDown(const MouseDownInfo& Info) { };
+        virtual void OnMouseUp(const MouseUpInfo& Info) { };
         virtual void OnMouseMove(const MouseMoveInfo& Info) { };
         virtual void OnMouseEnter(const MouseEnterInfo& Info) { };
         virtual void OnMouseExit(const MouseExitInfo& Info) { };

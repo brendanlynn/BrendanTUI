@@ -6,7 +6,7 @@
 namespace btui {
     class Control;
 
-    struct MouseClickControlInfo {
+    struct MouseDownControlInfo {
         union {
             struct {
                 uint32_t x;
@@ -15,7 +15,19 @@ namespace btui {
             PointU32 point;
         };
 
-        constexpr inline MouseClickControlInfo()
+        constexpr inline MouseDownControlInfo()
+            : point() { }
+    };
+    struct MouseUpControlInfo {
+        union {
+            struct {
+                uint32_t x;
+                uint32_t y;
+            };
+            PointU32 point;
+        };
+
+        constexpr inline MouseUpControlInfo()
             : point() { }
     };
     struct MouseEnterControlInfo {
@@ -110,7 +122,8 @@ namespace btui {
 
         virtual void OnFocusGained(const FocusGainedControlInfo& Info) { }
         virtual void OnFocusLost(const FocusLostControlInfo& Info) { }
-        virtual void OnMouseClick(const MouseClickControlInfo& Info) { }
+        virtual void OnMouseDown(const MouseDownControlInfo& Info) { }
+        virtual void OnMouseUp(const MouseUpControlInfo& Info) { }
         virtual void OnMouseEnter(const MouseEnterControlInfo& Info) { }
         virtual void OnMouseMove(const MouseMoveControlInfo& Info) { }
         virtual void OnMouseExit(const MouseExitControlInfo& Info) { }
