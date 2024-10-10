@@ -86,21 +86,28 @@ namespace btui {
             virtual void SetBackgroundFill(backgroundFill_t NewFill);
         };
 
+        enum ButtonState {
+            Released,
+            MouseOver,
+            Compressed,
+        };
+
         class Button : public Label {
-            bool isCompressed;
+            ButtonState buttonState;
+            backgroundFill_t fillReleased;
+            backgroundFill_t fillMouseover;
             backgroundFill_t fillCompressed;
-            backgroundFill_t fillDecompressed;
 
         protected:
-            virtual void SetCompressed(bool Compressed);
+            virtual void SetButtonState(ButtonState State);
             
         public:
-            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, WrapStyle TextWrapStyle = WrapStyle::NoWrap, backgroundFill_t BackgroundFillCompressed = std::monostate{}, backgroundFill_t BackgroundFillDecompressed = std::monostate{})
-                : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrapStyle, BackgroundFillDecompressed), isCompressed(false), fillCompressed(BackgroundFillCompressed), fillDecompressed(BackgroundFillDecompressed) { }
+            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, WrapStyle TextWrapStyle = WrapStyle::NoWrap, backgroundFill_t BackgroundFillReleased = std::monostate{}, backgroundFill_t BackgroundFillMouseover = std::monostate{}, backgroundFill_t BackgroundFillCompressed = std::monostate{})
+                : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrapStyle, BackgroundFillReleased), buttonState(ButtonState::Released), fillReleased(BackgroundFillReleased), fillMouseover(BackgroundFillMouseover), fillCompressed(BackgroundFillCompressed) { }
 
-            bool IsCompressed();
+            ButtonState GetButtonState();
 
-            virtual void SetBackgroundFill(backgroundFill_t NewFill) override; // Sets both.
+            virtual void SetBackgroundFill(backgroundFill_t NewFill) override; // Sets all three.
 
             backgroundFill_t GetBackgroundFillCompressed();
             virtual void SetBackgroundFillCompressed(backgroundFill_t NewFill);
