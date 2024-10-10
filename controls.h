@@ -52,8 +52,7 @@ namespace btui {
             uint32_t textForecolor;
             Align textHorizontalAlign;
             Align textVerticalAlign;
-            bool textWrap;
-            bool textStretch;
+            WrapStyle textWrapStyle;
             backgroundFill_t backgroundFill;
             
         protected:
@@ -80,11 +79,8 @@ namespace btui {
             Align GetTextVerticalAlign();
             virtual void SetTextVerticalAlign(Align NewAlign);
 
-            bool GetTextWrap();
-            virtual void SetTextWrap(bool Wrap);
-
-            bool GetTextStretch();
-            virtual void SetTextStretch(bool Stretch);
+            WrapStyle GetTextWrapStyle();
+            virtual void SetTextWrapStyle(WrapStyle WrapStyle);
 
             backgroundFill_t GetBackgroundFill();
             virtual void SetBackgroundFill(backgroundFill_t NewFill);

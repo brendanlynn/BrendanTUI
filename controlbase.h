@@ -126,6 +126,13 @@ namespace btui {
         End
     };
 
+    enum WrapStyle {
+        NoWrap,
+        WrapByChar,
+        WrapByWord,
+        WrapByWordAndStretch
+    };
+
     using backgroundFill_t = std::variant<std::monostate, BufferGridCell, uint32_t>;
 
     void OverwriteWithBackgroundFill(BufferGridCell& Cell, const backgroundFill_t& BackgroundFill);
