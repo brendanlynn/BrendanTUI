@@ -76,6 +76,76 @@ std::optional<CanvasIoInfo> GetCanvasIoInfo(btui::SizeU32 CanvasSize, btui::Size
 
 namespace btui {
     namespace controls {
+        PointU32 Canvas::ControlCoordsToCanvasCoordsNoLock(PointU32 ControlCoords) {
+            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(buffer.size, lastPartSize, verticalAlign, horizontalAlign);
+            if (!ioInfoO.has_value()) return PointU32(0, 0);
+            CanvasIoInfo ioInfo = *ioInfoO;
+
+            if (!RectU32(ioInfo.writePoint, ioInfo.ioSize).IsPointWithin(ControlCoords))
+                return PointU32(-1, -1);
+
+            return ControlCoords - ioInfo.writePoint + ioInfo.readPoint;
+        }
+        PointU32 Canvas::CanvasCoordsToControlCoordsNoLock(PointU32 CanvasCoords) {
+            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(buffer.size, lastPartSize, verticalAlign, horizontalAlign);
+            if (!ioInfoO.has_value()) return PointU32(0, 0);
+            CanvasIoInfo ioInfo = *ioInfoO;
+
+            if (!RectU32(ioInfo.readPoint, ioInfo.ioSize).IsPointWithin(CanvasCoords))
+                return PointU32(-1, -1);
+
+            return CanvasCoords - ioInfo.readPoint + ioInfo.writePoint;
+        }
+
+        void Canvas::CopyInCanvasNoLock(const BufferGrid& NewBuffer) {
+            BufferGrid oldBuffer = ExchangeCanvasNoLock(NewBuffer);
+
+            delete[] oldBuffer.buffer;
+        }
+        BufferGrid Canvas::CopyOutCanvasNoLock() {
+            uint32_t totalLength = buffer.width * buffer.height;
+
+            BufferGrid outBuffer(buffer.width, buffer.height, new BufferGridCell[totalLength]);
+
+            if (totalLength && buffer.buffer) memcpy(outBuffer.buffer, buffer.buffer, sizeof(BufferGridCell) * totalLength);
+
+            return outBuffer;
+        }
+        BufferGrid Canvas::ExchangeCanvasNoLock(const BufferGrid& NewBuffer) {
+            BufferGrid oldBuffer = buffer;
+
+            uint32_t newTotalLength = NewBuffer.width * NewBuffer.height;
+
+            if (buffer.width * buffer.height != newTotalLength)
+                buffer.buffer = new BufferGridCell[newTotalLength];
+            buffer.width = NewBuffer.width;
+            buffer.height = NewBuffer.height;
+            memcpy(buffer.buffer, NewBuffer.buffer, sizeof(BufferGridCell) * newTotalLength);
+
+            return oldBuffer;
+        }
+
+        Align Canvas::GetHorizontalAlignNoLock() {
+            return horizontalAlign;
+        }
+        void Canvas::SetHorizontalAlignNoLock(Align NewAlign) {
+            horizontalAlign = NewAlign;
+        }
+
+        Align Canvas::GetVerticalAlignNoLock() {
+            return verticalAlign;
+        }
+        void Canvas::SetVerticalAlignNoLock(Align NewAlign) {
+            verticalAlign = NewAlign;
+        }
+
+        backgroundFill_t Canvas::GetBackgroundFillNoLock() {
+            return backgroundFill;
+        }
+        void Canvas::SetBackgroundFillNoLock(backgroundFill_t NewFill) {
+            backgroundFill = NewFill;
+        }
+
         void Canvas::DrawControl(BufferGrid Buffer, RectU32 Partition) {
             std::lock_guard<std::mutex> lock(mtx);
 
@@ -135,90 +205,109 @@ namespace btui {
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(buffer.size, lastPartSize, verticalAlign, horizontalAlign);
-            if (!ioInfoO.has_value()) return PointU32(0, 0);
-            CanvasIoInfo ioInfo = *ioInfoO;
-
-            if (!RectU32(ioInfo.writePoint, ioInfo.ioSize).IsPointWithin(ControlCoords))
-                return PointU32(-1, -1);
-
-            return ControlCoords - ioInfo.writePoint + ioInfo.readPoint;
+            return ControlCoordsToCanvasCoordsNoLock(ControlCoords);
         }
         PointU32 Canvas::CanvasCoordsToControlCoords(PointU32 CanvasCoords) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(buffer.size, lastPartSize, verticalAlign, horizontalAlign);
-            if (!ioInfoO.has_value()) return PointU32(0, 0);
-            CanvasIoInfo ioInfo = *ioInfoO;
-
-            if (!RectU32(ioInfo.readPoint, ioInfo.ioSize).IsPointWithin(CanvasCoords))
-                return PointU32(-1, -1);
-
-            return CanvasCoords - ioInfo.readPoint + ioInfo.writePoint;
+            return CanvasCoordsToControlCoords(CanvasCoords);
         }
 
         void Canvas::CopyInCanvas(const BufferGrid& NewBuffer) {
-            BufferGrid oldBuffer = ExchangeCanvas(NewBuffer);
+            std::lock_guard<std::mutex> lock(mtx);
 
-            delete[] oldBuffer.buffer;
+            CopyInCanvasNoLock(NewBuffer);
         }
         BufferGrid Canvas::CopyOutCanvas() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            uint32_t totalLength = buffer.width * buffer.height;
-
-            BufferGrid outBuffer(buffer.width, buffer.height, new BufferGridCell[totalLength]);
-
-            if (totalLength && buffer.buffer) memcpy(outBuffer.buffer, buffer.buffer, sizeof(BufferGridCell) * totalLength);
-
-            return outBuffer;
+            return CopyOutCanvasNoLock();
         }
         BufferGrid Canvas::ExchangeCanvas(const BufferGrid& NewBuffer) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            BufferGrid oldBuffer = buffer;
-
-            uint32_t newTotalLength = NewBuffer.width * NewBuffer.height;
-
-            if (buffer.width * buffer.height != newTotalLength)
-                buffer.buffer = new BufferGridCell[newTotalLength];
-            buffer.width = NewBuffer.width;
-            buffer.height = NewBuffer.height;
-            memcpy(buffer.buffer, NewBuffer.buffer, sizeof(BufferGridCell) * newTotalLength);
-
-            return oldBuffer;
+            return ExchangeCanvasNoLock(NewBuffer);
         }
 
         Align Canvas::GetHorizontalAlign() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return horizontalAlign;
+            return GetHorizontalAlignNoLock();
         }
         void Canvas::SetHorizontalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            horizontalAlign = NewAlign;
+            SetHorizontalAlignNoLock(NewAlign);
         }
 
         Align Canvas::GetVerticalAlign() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return verticalAlign;
+            return GetVerticalAlignNoLock();
         }
         void Canvas::SetVerticalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            verticalAlign = NewAlign;
+            SetVerticalAlignNoLock(NewAlign);
         }
 
         backgroundFill_t Canvas::GetBackgroundFill() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return backgroundFill;
+            return GetBackgroundFillNoLock();
         }
         void Canvas::SetBackgroundFill(backgroundFill_t NewFill) {
             std::lock_guard<std::mutex> lock(mtx);
 
+            SetBackgroundFillNoLock(NewFill);
+        }
+
+        std::wstring Label::GetTextNoLock() {
+            return text;
+        }
+        void Label::SetTextNoLock(std::wstring NewText) {
+            text = NewText;
+        }
+
+        uint32_t Label::GetTextBackcolorNoLock() {
+            return textBackcolor;
+        }
+        void Label::SetTextBackcolorNoLock(uint32_t NewBackcolor) {
+            textBackcolor = NewBackcolor;
+        }
+
+        uint32_t Label::GetTextForecolorNoLock() {
+            return textForecolor;
+        }
+        void Label::SetTextForecolorNoLock(uint32_t NewForecolor) {
+            textForecolor = NewForecolor;
+        }
+
+        Align Label::GetTextHorizontalAlignNoLock() {
+            return textHorizontalAlign;
+        }
+        void Label::SetTextHorizontalAlignNoLock(Align NewAlign) {
+            textHorizontalAlign = NewAlign;
+        }
+
+        Align Label::GetTextVerticalAlignNoLock() {
+            return textVerticalAlign;
+        }
+        void Label::SetTextVerticalAlignNoLock(Align NewAlign) {
+            textVerticalAlign = NewAlign;
+        }
+
+        WrapStyle Label::GetTextWrapStyleNoLock() {
+            return textWrapStyle;
+        }
+        void Label::SetTextWrapStyleNoLock(WrapStyle WrapStyle) {
+            textWrapStyle = WrapStyle;
+        }
+
+        backgroundFill_t Label::GetBackgroundFillNoLock() {
+            return backgroundFill;
+        }
+        void Label::SetBackgroundFillNoLock(backgroundFill_t NewFill) {
             backgroundFill = NewFill;
         }
 
@@ -500,78 +589,113 @@ namespace btui {
         std::wstring Label::GetText() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return text;
+            return GetTextNoLock();
         }
-        void Label::SetText(const std::wstring& NewText) {
+        void Label::SetText(std::wstring NewText) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            text = NewText;
+            SetTextNoLock(NewText);
         }
 
         uint32_t Label::GetTextBackcolor() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return textBackcolor;
+            return GetTextBackcolorNoLock();
         }
         void Label::SetTextBackcolor(uint32_t NewBackcolor) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            textBackcolor = NewBackcolor;
+            SetTextBackcolorNoLock(NewBackcolor);
         }
 
         uint32_t Label::GetTextForecolor() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return textForecolor;
+            return GetTextForecolorNoLock();
         }
         void Label::SetTextForecolor(uint32_t NewForecolor) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            textForecolor = NewForecolor;
+            SetTextForecolorNoLock(NewForecolor);
         }
 
         Align Label::GetTextHorizontalAlign() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return textHorizontalAlign;
+            return GetTextHorizontalAlignNoLock();
         }
         void Label::SetTextHorizontalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            textHorizontalAlign = NewAlign;
+            SetTextHorizontalAlignNoLock(NewAlign);
         }
 
         Align Label::GetTextVerticalAlign() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return textVerticalAlign;
+            return GetTextVerticalAlignNoLock();
         }
         void Label::SetTextVerticalAlign(Align NewAlign) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            textVerticalAlign = NewAlign;
+            SetTextVerticalAlignNoLock(NewAlign);
         }
 
         WrapStyle Label::GetTextWrapStyle() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return textWrapStyle;
+            return GetTextWrapStyleNoLock();
         }
         void Label::SetTextWrapStyle(WrapStyle WrapStyle) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            textWrapStyle = WrapStyle;
+            SetTextWrapStyleNoLock(WrapStyle);
         }
 
         backgroundFill_t Label::GetBackgroundFill() {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return backgroundFill;
+            return GetBackgroundFillNoLock();
         }
         void Label::SetBackgroundFill(backgroundFill_t NewFill) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            backgroundFill = NewFill;
+            SetBackgroundFillNoLock(NewFill);
+        }
+
+        ButtonState Button::GetButtonStateNoLock() {
+            return buttonState;
+        }
+        void Button::SetButtonStateNoLock(ButtonState State) {
+            buttonState = State;
+        }
+
+        backgroundFill_t Button::GetBackgroundFillReleasedNoLock() {
+            return fillReleased;
+        }
+        void Button::SetBackgroundFillReleasedNoLock(backgroundFill_t NewFill) {
+            fillReleased = NewFill;
+        }
+
+        backgroundFill_t Button::GetBackgroundFillMouseoverNoLock() {
+            return fillMouseover;
+        }
+        void Button::SetBackgroundFillMouseoverNoLock(backgroundFill_t NewFill) {
+            fillMouseover = NewFill;
+        }
+
+        backgroundFill_t Button::GetBackgroundFillCompressedNoLock() {
+            return fillCompressed;
+        }
+        void Button::SetBackgroundFillCompressedNoLock(backgroundFill_t NewFill) {
+            fillCompressed = NewFill;
+        }
+
+        void Button::SetBackgroundFillNoLock(backgroundFill_t NewFill) {
+            fillReleased = NewFill;
+            fillMouseover = NewFill;
+            fillCompressed = NewFill;
+            Label::SetBackgroundFillNoLock(NewFill);
         }
 
         void Button::OnMouseDown(const MouseDownControlInfo& Info) {
@@ -593,6 +717,50 @@ namespace btui {
             std::lock_guard<std::mutex> lock(mtx);
 
             buttonState = ButtonState::Released;
+        }
+
+        ButtonState Button::GetButtonState() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return GetButtonStateNoLock();
+        }
+        void Button::SetButtonState(ButtonState State) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            SetButtonStateNoLock(State);
+        }
+
+        backgroundFill_t Button::GetBackgroundFillReleased() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return GetBackgroundFillReleasedNoLock();
+        }
+        void Button::SetBackgroundFillReleased(backgroundFill_t NewFill) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            SetBackgroundFillReleasedNoLock(NewFill);
+        }
+
+        backgroundFill_t Button::GetBackgroundFillMouseover() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return GetBackgroundFillMouseoverNoLock();
+        }
+        void Button::SetBackgroundFillMouseover(backgroundFill_t NewFill) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            SetBackgroundFillMouseoverNoLock(NewFill);
+        }
+
+        backgroundFill_t Button::GetBackgroundFillCompressed() {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            return GetBackgroundFillCompressedNoLock();
+        }
+        void Button::SetBackgroundFillCompressed(backgroundFill_t NewFill) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            SetBackgroundFillCompressedNoLock(NewFill);
         }
     }
 }

@@ -24,6 +24,22 @@ namespace btui {
         protected:
             std::mutex mtx;
 
+            PointU32 ControlCoordsToCanvasCoordsNoLock(PointU32 ControlCoords);
+            PointU32 CanvasCoordsToControlCoordsNoLock(PointU32 CanvasCoords);
+
+            virtual void CopyInCanvasNoLock(const BufferGrid& NewBuffer);
+            BufferGrid CopyOutCanvasNoLock();
+            virtual BufferGrid ExchangeCanvasNoLock(const BufferGrid& NewBuffer);
+
+            Align GetHorizontalAlignNoLock();
+            virtual void SetHorizontalAlignNoLock(Align NewAlign);
+
+            Align GetVerticalAlignNoLock();
+            virtual void SetVerticalAlignNoLock(Align NewAlign);
+
+            backgroundFill_t GetBackgroundFillNoLock();
+            virtual void SetBackgroundFillNoLock(backgroundFill_t NewFill);
+
             virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
 
         public:
@@ -32,18 +48,18 @@ namespace btui {
             PointU32 ControlCoordsToCanvasCoords(PointU32 ControlCoords);
             PointU32 CanvasCoordsToControlCoords(PointU32 CanvasCoords);
 
-            virtual void CopyInCanvas(const BufferGrid& NewBuffer);
+            void CopyInCanvas(const BufferGrid& NewBuffer);
             BufferGrid CopyOutCanvas();
-            virtual BufferGrid ExchangeCanvas(const BufferGrid& NewBuffer);
+            BufferGrid ExchangeCanvas(const BufferGrid& NewBuffer);
 
             Align GetHorizontalAlign();
-            virtual void SetHorizontalAlign(Align NewAlign);
+            void SetHorizontalAlign(Align NewAlign);
 
             Align GetVerticalAlign();
-            virtual void SetVerticalAlign(Align NewAlign);
+            void SetVerticalAlign(Align NewAlign);
 
             backgroundFill_t GetBackgroundFill();
-            virtual void SetBackgroundFill(backgroundFill_t NewFill);
+            void SetBackgroundFill(backgroundFill_t NewFill);
         };
 
         class Label : public Control {
@@ -58,6 +74,27 @@ namespace btui {
         protected:
             std::mutex mtx;
 
+            std::wstring GetTextNoLock();
+            virtual void SetTextNoLock(std::wstring NewText);
+
+            uint32_t GetTextBackcolorNoLock();
+            virtual void SetTextBackcolorNoLock(uint32_t NewBackcolor);
+
+            uint32_t GetTextForecolorNoLock();
+            virtual void SetTextForecolorNoLock(uint32_t NewForecolor);
+
+            Align GetTextHorizontalAlignNoLock();
+            virtual void SetTextHorizontalAlignNoLock(Align NewAlign);
+
+            Align GetTextVerticalAlignNoLock();
+            virtual void SetTextVerticalAlignNoLock(Align NewAlign);
+
+            WrapStyle GetTextWrapStyleNoLock();
+            virtual void SetTextWrapStyleNoLock(WrapStyle WrapStyle);
+
+            backgroundFill_t GetBackgroundFillNoLock();
+            virtual void SetBackgroundFillNoLock(backgroundFill_t NewFill);
+
             virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
 
         public:
@@ -65,25 +102,25 @@ namespace btui {
                 : Control(FocusManager, InvalidateFunc), text(Text), textBackcolor(TextBackcolor), textForecolor(TextForecolor), textHorizontalAlign(TextHorizontalAlign), textVerticalAlign(TextVerticalAlign), textWrapStyle(TextWrapStyle), backgroundFill(BackgroundFill) { }
 
             std::wstring GetText();
-            virtual void SetText(const std::wstring& NewText);
+            void SetText(std::wstring NewText);
 
             uint32_t GetTextBackcolor();
-            virtual void SetTextBackcolor(uint32_t NewBackcolor);
+            void SetTextBackcolor(uint32_t NewBackcolor);
 
             uint32_t GetTextForecolor();
-            virtual void SetTextForecolor(uint32_t NewForecolor);
+            void SetTextForecolor(uint32_t NewForecolor);
 
             Align GetTextHorizontalAlign();
-            virtual void SetTextHorizontalAlign(Align NewAlign);
+            void SetTextHorizontalAlign(Align NewAlign);
 
             Align GetTextVerticalAlign();
-            virtual void SetTextVerticalAlign(Align NewAlign);
+            void SetTextVerticalAlign(Align NewAlign);
 
             WrapStyle GetTextWrapStyle();
-            virtual void SetTextWrapStyle(WrapStyle WrapStyle);
+            void SetTextWrapStyle(WrapStyle WrapStyle);
 
             backgroundFill_t GetBackgroundFill();
-            virtual void SetBackgroundFill(backgroundFill_t NewFill);
+            void SetBackgroundFill(backgroundFill_t NewFill);
         };
 
         enum ButtonState {
@@ -99,6 +136,20 @@ namespace btui {
             backgroundFill_t fillCompressed;
 
         protected:
+            ButtonState GetButtonStateNoLock();
+            virtual void SetButtonStateNoLock(ButtonState State);
+
+            backgroundFill_t GetBackgroundFillReleasedNoLock();
+            virtual void SetBackgroundFillReleasedNoLock(backgroundFill_t NewFill);
+
+            backgroundFill_t GetBackgroundFillMouseoverNoLock();
+            virtual void SetBackgroundFillMouseoverNoLock(backgroundFill_t NewFill);
+
+            backgroundFill_t GetBackgroundFillCompressedNoLock();
+            virtual void SetBackgroundFillCompressedNoLock(backgroundFill_t NewFill);
+
+            virtual void SetBackgroundFillNoLock(backgroundFill_t NewFill) override;
+
             virtual void OnMouseDown(const MouseDownControlInfo& Info) override;
             virtual void OnMouseUp(const MouseUpControlInfo& Info) override;
             virtual void OnMouseEnter(const MouseEnterControlInfo& Info) override;
@@ -112,13 +163,14 @@ namespace btui {
 
             ButtonState GetButtonState();
 
-            virtual void SetBackgroundFill(backgroundFill_t NewFill) override; // Sets all three.
+            backgroundFill_t GetBackgroundFillReleased();
+            void SetBackgroundFillReleased(backgroundFill_t NewFill);
+
+            backgroundFill_t GetBackgroundFillMouseover();
+            void SetBackgroundFillMouseover(backgroundFill_t NewFill);
 
             backgroundFill_t GetBackgroundFillCompressed();
-            virtual void SetBackgroundFillCompressed(backgroundFill_t NewFill);
-
-            backgroundFill_t GetBackgroundFillDecompressed();
-            virtual void SetBackgroundFillDecompressed(backgroundFill_t NewFill);
+            void SetBackgroundFillCompressed(backgroundFill_t NewFill);
         };
     }
 }
