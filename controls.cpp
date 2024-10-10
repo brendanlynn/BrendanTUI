@@ -573,5 +573,26 @@ namespace btui {
 
             backgroundFill = NewFill;
         }
+
+        void Button::OnMouseDown(const MouseDownControlInfo& Info) {
+            std::lock_guard<std::mutex> lock(mtx);
+            
+            buttonState = ButtonState::Compressed;
+        }
+        void Button::OnMouseUp(const MouseUpControlInfo& Info) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            buttonState = ButtonState::MouseOver;
+        }
+        void Button::OnMouseEnter(const MouseEnterControlInfo& Info) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            buttonState = ButtonState::MouseOver;
+        }
+        void Button::OnMouseExit(const MouseExitControlInfo& Info) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            buttonState = ButtonState::Released;
+        }
     }
 }

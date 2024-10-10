@@ -99,8 +99,13 @@ namespace btui {
             backgroundFill_t fillCompressed;
 
         protected:
+            virtual void OnMouseDown(const MouseDownControlInfo& Info) override;
+            virtual void OnMouseUp(const MouseUpControlInfo& Info) override;
+            virtual void OnMouseEnter(const MouseEnterControlInfo& Info) override;
+            virtual void OnMouseExit(const MouseExitControlInfo& Info) override;
+
             virtual void SetButtonState(ButtonState State);
-            
+
         public:
             Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, WrapStyle TextWrapStyle = WrapStyle::NoWrap, backgroundFill_t BackgroundFillReleased = std::monostate{}, backgroundFill_t BackgroundFillMouseover = std::monostate{}, backgroundFill_t BackgroundFillCompressed = std::monostate{})
                 : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrapStyle, BackgroundFillReleased), buttonState(ButtonState::Released), fillReleased(BackgroundFillReleased), fillMouseover(BackgroundFillMouseover), fillCompressed(BackgroundFillCompressed) { }
