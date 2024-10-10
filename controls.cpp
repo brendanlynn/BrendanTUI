@@ -221,5 +221,277 @@ namespace btui {
 
             backgroundFill = NewFill;
         }
+
+        void Label::DrawControl(BufferGrid Buffer, RectU32 Partition) {
+            std::lock_guard<std::mutex> lock(mtx);
+
+            std::vector<std::wstring> lines;
+            
+            switch (textWrapStyle) {
+            case WrapStyle::NoWrap:
+                {
+                    std::wstringstream currentStream;
+                    uint32_t size = 0;
+                    bool writing = true;
+                    for (wchar_t c : text) {
+                        if (c == L'\n') {
+                            lines.push_back(currentStream.str());
+                            currentStream.clear();
+                            size = 0;
+                            writing = true;
+                            continue;
+                        }
+                        if (size >= Partition.width) {
+                            writing = false;
+                            continue;
+                        }
+                        if (!writing) continue;
+                        if (c == L'\r') continue;
+
+                        currentStream << c;
+                        size++;
+                    }
+                    lines.push_back(currentStream.str());
+                }
+            case WrapStyle::WrapByChar:
+                {
+                    std::wstringstream currentStream;
+                    uint32_t size = 0;
+                    for (wchar_t c : text) {
+                        if (c == L'\n' || size >= Partition.width) {
+                            lines.push_back(currentStream.str());
+                            currentStream.clear();
+                            size = 0;
+                            continue;
+                        }
+                        if (c == L'\r') continue;
+
+                        currentStream << c;
+                        size++;
+                    }
+                    lines.push_back(currentStream.str());
+                }
+            case WrapStyle::WrapByWord:
+            case WrapStyle::WrapByWordAndStretch:
+                {
+                    std::vector<bool> wrappedRecord;
+                    std::wstringstream currentStream;
+                    uint32_t size = 0;
+                    uint32_t lastSpace = 0;
+                    bool notFirst = false;
+                    bool lastWasWhitespace = true;
+                    for (uint32_t i = 0; i < text.size(); ++i) {
+                        wchar_t c = text[i];
+
+                        if (c == L'\r') continue;
+                        if (c == L'\n') {
+                            if (lastWasWhitespace) {
+                                notFirst = true;
+                                size = 0;
+                                lines.push_back(currentStream.str());
+                                wrappedRecord.push_back(false);
+                                currentStream.clear();
+                                lastSpace = i;
+                                continue;
+                            }
+                            if (notFirst) currentStream << L' ';
+                            for (uint32_t j = lastSpace + 1; j < i; ++j)
+                                currentStream << text[j];
+                            notFirst = false;
+                            size = 0;
+                            lines.push_back(currentStream.str());
+                            wrappedRecord.push_back(false);
+                            currentStream.clear();
+                            lastSpace = i;
+                            lastWasWhitespace = true;
+                            continue;
+                        }
+                        if (c == L' ') {
+                            if (lastWasWhitespace) {
+                                lastSpace = i;
+                                continue;
+                            }
+                            if (size >= Partition.width) {
+                                if (notFirst) currentStream << L' ';
+                                for (uint32_t j = lastSpace + 1; j < i; ++j)
+                                    currentStream << text[j];
+                                notFirst = false;
+                                size = 0;
+                                lines.push_back(currentStream.str());
+                                wrappedRecord.push_back(true);
+                                currentStream.clear();
+                                lastSpace = i;
+                                lastWasWhitespace = true;
+                                continue;
+                            }
+                            if (notFirst) {
+                                currentStream << L' ';
+                                size++;
+                            }
+                            for (uint32_t j = lastSpace + 1; j < i; ++j)
+                                currentStream << text[j];
+                            size += i - lastSpace - 1;
+                            lastSpace = i;
+                            lastWasWhitespace = true;
+                            notFirst = true;
+                            continue;
+                        }
+                        if (size >= Partition.width) {
+                            if (!notFirst) {
+                                for (uint32_t j = lastSpace + 1; j < i; ++j)
+                                    currentStream << text[j];
+                            }
+                            lines.push_back(currentStream.str());
+                            wrappedRecord.push_back(true);
+                            currentStream.clear();
+                            notFirst = false;
+                            size = 0;
+                            lastWasWhitespace = false;
+                            continue;
+                        }
+
+                        size++;
+                        lastWasWhitespace = false;
+                    }
+                    if (notFirst) currentStream << L' ';
+                    for (uint32_t i = lastSpace + 1; i < text.size(); ++i)
+                        currentStream << text[i];
+                    lines.push_back(currentStream.str());
+                    wrappedRecord.push_back(false);
+
+                    if (textWrapStyle == WrapStyle::WrapByWordAndStretch) {
+                        for (size_t lineIdx = 0; lineIdx < lines.size(); ++lineIdx) {
+                            std::wstring& line = lines[lineIdx];
+                            bool lineWasWrapped = wrappedRecord[lineIdx];
+
+                            if (!lineWasWrapped) continue;
+
+                            uint32_t remainder = Partition.width - line.size();
+                            if (!remainder) continue;
+
+                            uint32_t spaceCount = 0;
+                            for (wchar_t c : line)
+                                if (c == L' ') spaceCount++;
+                            if (!spaceCount) continue;
+
+                            uint32_t perSpaceAddBase = remainder / spaceCount;
+                            uint32_t perSpaceAddBaseRemainder = remainder % spaceCount;
+
+                            uint32_t remainderDistribution = spaceCount / perSpaceAddBaseRemainder;
+                            uint32_t remainderDistributionRemainder = spaceCount % perSpaceAddBaseRemainder;
+                            uint32_t remainderDistributionRemainderUntil = spaceCount - remainderDistributionRemainder;
+
+                            std::wstringstream newLineStream;
+                            uint32_t countOfSpacesSeenSoFar = 0;
+                            for (wchar_t c : line) {
+                                newLineStream << c;
+                                if (c == L' ') {
+                                    countOfSpacesSeenSoFar++;
+                                    if (countOfSpacesSeenSoFar > remainderDistributionRemainderUntil)
+                                        newLineStream << L' ';
+                                    for (uint32_t i = 0; i < perSpaceAddBase; ++i)
+                                        newLineStream << L' ';
+                                }
+                            }
+
+                            line = newLineStream.str();
+                        }
+                    }
+                }
+            }
+
+            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(SizeU32(Partition.width, lines.size()), Partition.size, textVerticalAlign, Align::Start);
+            if (!ioInfoO.has_value()) return;
+            CanvasIoInfo ioInfo = *ioInfoO;
+
+            ioInfo.writeX += Partition.x;
+            ioInfo.writeY += Partition.y;
+
+            uint32_t rYEnd = ioInfo.readY + ioInfo.ioHeight;
+            uint32_t wYEnd = ioInfo.writeY + ioInfo.ioHeight;
+            uint32_t pXEnd = Partition.x + Partition.width;
+            uint32_t pYEnd = Partition.y + Partition.height;
+            switch (textHorizontalAlign) {
+            case Align::Start:
+                for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
+                    const std::wstring& line = lines[rJ];
+                    for (uint32_t lI = 0, wI = ioInfo.writeX; lI < line.size(); lI++, wI++) {
+                        BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                        cell.character = line[lI];
+                        cell.forecolor = textForecolor;
+                        cell.backcolor = textBackcolor;
+                    }
+                    if (backgroundFill.index()) {
+                        for (uint32_t wI = ioInfo.writeX + line.size(); wI < pXEnd; ++wI) {
+                            BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                            OverwriteWithBackgroundFill(cell, backgroundFill);
+                        }
+                    }
+                }
+                break;
+            case Align::Middle:
+                for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
+                    const std::wstring& line = lines[rJ];
+                    uint32_t wIStart = Partition.width / 2 - line.size() / 2 + ioInfo.writeX;
+                    for (uint32_t lI = 0, wI = ioInfo.writeX; lI < line.size(); lI++, wI++) {
+                        BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                        cell.character = line[lI];
+                        cell.forecolor = textForecolor;
+                        cell.backcolor = textBackcolor;
+                    }
+                    uint32_t wIEnd = wIStart + line.size();
+                    if (backgroundFill.index()) {
+                        for (uint32_t wI = Partition.x; wI < wIStart; ++wI) {
+                            BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                            OverwriteWithBackgroundFill(cell, backgroundFill);
+                        }
+                        for (uint32_t wI = wIEnd; wI < pXEnd; ++wI) {
+                            BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                            OverwriteWithBackgroundFill(cell, backgroundFill);
+                        }
+                    }
+                }
+                break;
+            case Align::End:
+                for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
+                    const std::wstring& line = lines[rJ];
+                    uint32_t wIStart = pXEnd - line.size();
+                    for (uint32_t lI = 0, wI = wIStart; lI < line.size(); lI++, wI++) {
+                        BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                        cell.character = line[lI];
+                        cell.forecolor = textForecolor;
+                        cell.backcolor = textBackcolor;
+                    }
+                    if (backgroundFill.index()) {
+                        for (uint32_t wI = Partition.x; wI < wIStart; ++wI) {
+                            BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                            OverwriteWithBackgroundFill(cell, backgroundFill);
+                        }
+                    }
+                }
+                break;
+            }
+            if (backgroundFill.index()) {
+                for (uint32_t wI = Partition.x; wI < pXEnd; ++wI) {
+                    for (uint32_t wJ = Partition.y; wJ < ioInfo.writeY; ++wJ) {
+                        BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                        OverwriteWithBackgroundFill(cell, backgroundFill);
+                    }
+                    for (uint32_t wJ = wYEnd; wJ < pYEnd; ++wJ) {
+                        BufferGridCell& cell = Buffer.buffer[wJ * Buffer.width + wI];
+
+                        OverwriteWithBackgroundFill(cell, backgroundFill);
+                    }
+                }
+            }
+        }
     }
 }
