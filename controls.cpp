@@ -253,6 +253,7 @@ namespace btui {
                     }
                     lines.push_back(currentStream.str());
                 }
+                break;
             case WrapStyle::WrapByChar:
                 {
                     std::wstringstream currentStream;
@@ -271,6 +272,7 @@ namespace btui {
                     }
                     lines.push_back(currentStream.str());
                 }
+                break;
             case WrapStyle::WrapByWord:
             case WrapStyle::WrapByWordAndStretch:
                 {
@@ -398,6 +400,7 @@ namespace btui {
                         }
                     }
                 }
+                break;
             }
 
             std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(SizeU32(Partition.width, lines.size()), Partition.size, textVerticalAlign, Align::Start);
