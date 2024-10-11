@@ -146,6 +146,13 @@ namespace btui {
     }
     LRESULT WindowBase::WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam) {
         switch (Msg) {
+        case WM_SETCURSOR:
+            if (LOWORD(LParam) == HTCLIENT) {
+                HCURSOR hCursor = LoadCursor(NULL, IDC_ARROW);
+                SetCursor(hCursor);
+                return 0;
+            }
+            break;
         case WM_KEYDOWN: {
             KeyPressInfo info;
             info.keyChar = static_cast<wchar_t>(WParam);
@@ -429,9 +436,8 @@ namespace btui {
             EndPaint(Hwnd, &ps);
             return 0;
         }
-        default:
-            return DefWindowProc(Hwnd, Msg, WParam, LParam);
         }
+        return DefWindowProc(Hwnd, Msg, WParam, LParam);
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
