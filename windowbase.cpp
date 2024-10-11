@@ -165,6 +165,9 @@ namespace btui {
                 case CursorTypeIBeam:
                     hCursor = LoadCursor(NULL, IDC_IBEAM);
                     break;
+                case CursorTypeCrosshairs:
+                    hCursor = LoadCursor(NULL, IDC_CROSS);
+                    break;
                 case CursorTypeNo:
                     hCursor = LoadCursor(NULL, IDC_NO);
                     break;
