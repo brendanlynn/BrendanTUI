@@ -70,7 +70,7 @@ namespace btui {
             Align textVerticalAlign;
             WrapStyle textWrapStyle;
             backgroundFill_t backgroundFill;
-            
+
         protected:
             std::mutex mtx;
 
