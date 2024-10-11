@@ -365,7 +365,13 @@ namespace btui {
             RECT clientRect;
             GetClientRect(Hwnd, &clientRect);
 
-            FillRect(hdc, &clientRect, CreateSolidBrush(ConvertToColorref(backColor)));
+            // Create a memory device context
+            HDC memDC = CreateCompatibleDC(hdc);
+            HBITMAP memBitmap = CreateCompatibleBitmap(hdc, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+            HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, memBitmap);
+
+            // Fill the background in the memory DC
+            FillRect(memDC, &clientRect, CreateSolidBrush(ConvertToColorref(backColor)));
 
             // Calculate buffer size (in characters)
             uint32_t width = (clientRect.right - clientRect.left) / charWidth;
@@ -398,20 +404,27 @@ namespace btui {
                 FIXED_PITCH | FF_MODERN,  // Pitch and family (monospaced)
                 L"Consolas"          // Font name
             );
-            SelectObject(hdc, hFont);
+            SelectObject(memDC, hFont);
 
-            // Draw each character in the buffer grid
+            // Draw each character in the buffer grid to the memory DC
             for (uint32_t y = 0; y < height; ++y) {
                 for (uint32_t x = 0; x < width; ++x) {
                     const BufferGridCell& cell = lastBuffer[y * width + x];
-                    SetTextColor(hdc, ConvertToColorref(cell.forecolor));
-                    SetBkColor(hdc, ConvertToColorref(cell.backcolor));
+                    SetTextColor(memDC, ConvertToColorref(cell.forecolor));
+                    SetBkColor(memDC, ConvertToColorref(cell.backcolor));
 
                     wchar_t charBuffer[2] = { cell.character, L'\0' };
-                    TextOutW(hdc, x * charWidth, y * charHeight, charBuffer, 1);
+                    TextOutW(memDC, x * charWidth, y * charHeight, charBuffer, 1);
                 }
             }
 
+            // BitBlt the memory DC to the window's DC
+            BitBlt(hdc, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, memDC, 0, 0, SRCCOPY);
+
+            // Cleanup
+            SelectObject(memDC, oldBitmap);
+            DeleteObject(memBitmap);
+            DeleteDC(memDC);
             DeleteObject(hFont);
             EndPaint(Hwnd, &ps);
             return 0;
