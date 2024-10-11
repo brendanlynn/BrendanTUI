@@ -148,8 +148,60 @@ namespace btui {
         switch (Msg) {
         case WM_SETCURSOR:
             if (LOWORD(LParam) == HTCLIENT) {
-                HCURSOR hCursor = LoadCursor(NULL, IDC_ARROW);
+                CursorType cursorTypeLocal;
+                {
+                    std::lock_guard<std::mutex> lock(mtx);
+                    cursorTypeLocal = cursorType;
+                }
+
+                HCURSOR hCursor;
+                switch (cursorType) {
+                case CursorTypeArrow:
+                    hCursor = LoadCursor(NULL, IDC_ARROW);
+                    break;
+                case CursorTypeHand:
+                    hCursor = LoadCursor(NULL, IDC_HAND);
+                    break;
+                case CursorTypeIBeam:
+                    hCursor = LoadCursor(NULL, IDC_IBEAM);
+                    break;
+                case CursorTypeNo:
+                    hCursor = LoadCursor(NULL, IDC_NO);
+                    break;
+                case CursorTypeResizeNS:
+                    hCursor = LoadCursor(NULL, IDC_SIZENS);
+                    break;
+                case CursorTypeResizeEW:
+                    hCursor = LoadCursor(NULL, IDC_SIZEWE);
+                    break;
+                case CursorTypeResizeNESW:
+                    hCursor = LoadCursor(NULL, IDC_SIZENESW);
+                    break;
+                case CursorTypeResizeNWSE:
+                    hCursor = LoadCursor(NULL, IDC_SIZENWSE);
+                    break;
+                case CursorTypeResizeOmni:
+                    hCursor = LoadCursor(NULL, IDC_SIZEALL);
+                    break;
+                case CursorTypeStarting:
+                    hCursor = LoadCursor(NULL, IDC_APPSTARTING);
+                    break;
+                case CursorTypeWait:
+                    hCursor = LoadCursor(NULL, IDC_WAIT);
+                    break;
+                case CursorTypeHelp:
+                    hCursor = LoadCursor(NULL, IDC_HELP);
+                    break;
+                case CursorTypeUpArrow:
+                    hCursor = LoadCursor(NULL, IDC_UPARROW);
+                    break;
+                default:
+                    hCursor = LoadCursor(NULL, IDC_ICON);
+                    break;
+                }
+
                 SetCursor(hCursor);
+
                 return 0;
             }
             break;
@@ -441,7 +493,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowStateHidden), mouseContained(false), backColor(0xFF000000) {
+        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowStateHidden), mouseContained(false), backColor(0xFF000000), cursorType(CursorTypeArrow) {
 
         className = GenerateGuidStr();
 
@@ -631,5 +683,16 @@ namespace btui {
         std::lock_guard<std::mutex> lock(mtx);
 
         backColor = Color;
+    }
+
+    CursorType WindowBase::GetCursorType() {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        return cursorType;
+    }
+    void WindowBase::SetCursorType(CursorType Type) {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        cursorType = Type;
     }
 }

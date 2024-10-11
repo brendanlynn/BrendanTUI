@@ -200,6 +200,24 @@ namespace btui {
         WindowStateRestored
     };
 
+    enum CursorType {
+        CursorTypeInvisible,
+        CursorTypeArrow,
+        CursorTypeHand,
+        CursorTypeIBeam,
+        CursorTypeCrosshairs,
+        CursorTypeNo,
+        CursorTypeResizeNS,
+        CursorTypeResizeEW,
+        CursorTypeResizeNESW,
+        CursorTypeResizeNWSE,
+        CursorTypeResizeOmni,
+        CursorTypeStarting,
+        CursorTypeWait,
+        CursorTypeHelp,
+        CursorTypeUpArrow
+    };
+
     struct KeyPressInfo {
         wchar_t keyChar;
         uint32_t keyCode;
@@ -361,6 +379,7 @@ namespace btui {
         BufferGridCell* lastBuffer;
         SizeU32 lastBufferSize;
         WindowState lastWindowState;
+        CursorType cursorType;
 
         void UpdateFunction(bool* Initialized);
         static LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
@@ -435,6 +454,11 @@ namespace btui {
 
         uint32_t GetBackgroundColor();
         void SetBackgroundColor(uint32_t Color);
+
+        // The type of cursor
+
+        CursorType GetCursorType();
+        void SetCursorType(CursorType Type);
     protected:
         // Client repaint (buffer should be in
         // row-major order).
