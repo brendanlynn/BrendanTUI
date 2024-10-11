@@ -420,7 +420,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), isRunning(true), allowTransparentBackgrounds(false), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
+        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
 
         className = GenerateGuidStr();
 
@@ -483,7 +483,7 @@ namespace btui {
 
     void WindowBase::Invalidate() {
         InvokeOnWindowThread([this]() {
-            ::InvalidateRect(hwnd, NULL, allowTransparentBackgrounds ? TRUE : FALSE);
+            ::InvalidateRect(hwnd, NULL, FALSE);
         });
     }
 
@@ -599,16 +599,5 @@ namespace btui {
         InvokeOnWindowThread([this, &Title]() {
             ::SetWindowTextW(hwnd, Title.c_str());
         });
-    }
-
-    bool WindowBase::GetAllowTransparentBackgrounds() {
-        std::lock_guard<std::mutex> lock(mtx);
-
-        return allowTransparentBackgrounds;
-    }
-    void WindowBase::SetAllowTransparentBackgrounds(bool Allow) {
-        std::lock_guard<std::mutex> lock(mtx);
-
-        allowTransparentBackgrounds = Allow;
     }
 }

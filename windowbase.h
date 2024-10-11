@@ -356,7 +356,6 @@ namespace btui {
         std::atomic<bool> isRunning;
         std::queue<details::QueuedTask> taskQueue;
 
-        bool allowTransparentBackgrounds;
         bool mouseContained;
         BufferGridCell* lastBuffer;
         SizeU32 lastBufferSize;
@@ -430,13 +429,6 @@ namespace btui {
 
         std::wstring GetTitle();
         void SetTitle(std::wstring Title);
-
-        // Disabling transparent backgrounds increases
-        // efficiency. But if the user wants them,
-        // okey dokey. It's simple enough to implement.
-
-        bool GetAllowTransparentBackgrounds();
-        void SetAllowTransparentBackgrounds(bool Allow);
     protected:
         // Client repaint (buffer should be in
         // row-major order).
