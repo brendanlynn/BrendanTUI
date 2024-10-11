@@ -33,7 +33,7 @@ struct CanvasIoInfo {
 
 std::optional<CanvasIoInfo> GetCanvasIoInfo(btui::SizeU32 CanvasSize, btui::SizeU32 PartitionSize, btui::Align VerticalAlign, btui::Align HorizontalAlign) {
     CanvasIoInfo ioInfo;
-    
+
     ioInfo.ioWidth = min(CanvasSize.width, PartitionSize.width);
     ioInfo.ioHeight = min(CanvasSize.height, PartitionSize.height);
 
@@ -210,7 +210,7 @@ namespace btui {
         PointU32 Canvas::CanvasCoordsToControlCoords(PointU32 CanvasCoords) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            return CanvasCoordsToControlCoords(CanvasCoords);
+            return CanvasCoordsToControlCoordsNoLock(CanvasCoords);
         }
 
         void Canvas::CopyInCanvas(const BufferGrid& NewBuffer) {
@@ -315,7 +315,7 @@ namespace btui {
             std::lock_guard<std::mutex> lock(mtx);
 
             std::vector<std::wstring> lines;
-            
+
             switch (textWrapStyle) {
             case WrapStyle::NoWrap:
                 {
@@ -700,7 +700,7 @@ namespace btui {
 
         void Button::OnMouseDown(const MouseDownControlInfo& Info) {
             std::lock_guard<std::mutex> lock(mtx);
-            
+
             buttonState = ButtonState::Compressed;
         }
         void Button::OnMouseUp(const MouseUpControlInfo& Info) {
