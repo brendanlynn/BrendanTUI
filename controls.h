@@ -43,7 +43,7 @@ namespace btui {
             virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
 
         public:
-            Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer = BufferGrid(), Align HorizontalAlign = Align::Middle, Align VerticalAlign = Align::Middle, backgroundFill_t BackgroundFill = std::monostate{});
+            Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc);
 
             PointU32 ControlCoordsToCanvasCoords(PointU32 ControlCoords);
             PointU32 CanvasCoordsToControlCoords(PointU32 CanvasCoords);
@@ -98,8 +98,7 @@ namespace btui {
             virtual void DrawControl(BufferGrid Buffer, RectU32 Partition) override;
 
         public:
-            inline Label(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, WrapStyle TextWrapStyle = WrapStyle::NoWrap, backgroundFill_t BackgroundFill = std::monostate{})
-                : Control(FocusManager, InvalidateFunc), text(Text), textBackcolor(TextBackcolor), textForecolor(TextForecolor), textHorizontalAlign(TextHorizontalAlign), textVerticalAlign(TextVerticalAlign), textWrapStyle(TextWrapStyle), backgroundFill(BackgroundFill) { }
+            Label(FocusManager* FocusManager, std::function<void()> InvalidateFunc);
 
             std::wstring GetText();
             void SetText(std::wstring NewText);
@@ -158,8 +157,7 @@ namespace btui {
             virtual void SetButtonState(ButtonState State);
 
         public:
-            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc, std::wstring Text = L"", uint32_t TextBackcolor = 0xFF000000, uint32_t TextForecolor = 0xFFFFFFFF, Align TextHorizontalAlign = Align::Middle, Align TextVerticalAlign = Align::Middle, WrapStyle TextWrapStyle = WrapStyle::NoWrap, backgroundFill_t BackgroundFillReleased = std::monostate{}, backgroundFill_t BackgroundFillMouseover = std::monostate{}, backgroundFill_t BackgroundFillCompressed = std::monostate{})
-                : Label(FocusManager, InvalidateFunc, Text, TextBackcolor, TextForecolor, TextHorizontalAlign, TextVerticalAlign, TextWrapStyle, BackgroundFillReleased), buttonState(ButtonState::Released), fillReleased(BackgroundFillReleased), fillMouseover(BackgroundFillMouseover), fillCompressed(BackgroundFillCompressed) { }
+            Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc);
 
             ButtonState GetButtonState();
 

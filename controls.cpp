@@ -191,16 +191,8 @@ namespace btui {
                     OverwriteWithBackgroundFill(Buffer.buffer[j * Buffer.width + i], backgroundFill);
         }
 
-        Canvas::Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc, BufferGrid Buffer, Align HorizontalAlign, Align VerticalAlign, backgroundFill_t BackgroundFill)
-            : Control(FocusManager, InvalidateFunc), horizontalAlign(HorizontalAlign), verticalAlign(VerticalAlign), backgroundFill(BackgroundFill) {
-            uint32_t product = buffer.width * buffer.height;
-            if (product && Buffer.buffer) {
-                Buffer.width = buffer.width;
-                Buffer.height = buffer.height;
-                Buffer.buffer = new BufferGridCell[product];
-                memcpy(buffer.buffer, Buffer.buffer, sizeof(BufferGridCell) * product);
-            }
-        }
+        Canvas::Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
+            : Control(FocusManager, InvalidateFunc), horizontalAlign(Align::Middle), verticalAlign(Align::Middle), backgroundFill(std::monostate{}) { }
 
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
             std::lock_guard<std::mutex> lock(mtx);
@@ -586,6 +578,9 @@ namespace btui {
             }
         }
 
+        Label::Label(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
+            : Control(FocusManager, InvalidateFunc), text(L""), textBackcolor(0xFF000000), textForecolor(0xFFFFFFFF), textHorizontalAlign(Align::Middle), textVerticalAlign(Align::Middle), textWrapStyle(WrapStyle::NoWrap), backgroundFill(std::monostate{}) { }
+
         std::wstring Label::GetText() {
             std::lock_guard<std::mutex> lock(mtx);
 
@@ -729,6 +724,9 @@ namespace btui {
 
             SetButtonStateNoLock(State);
         }
+
+        Button::Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
+            : Label(FocusManager, InvalidateFunc), buttonState(ButtonState::Released), fillReleased(std::monostate{}), fillMouseover(std::monostate{}), fillCompressed(std::monostate{}) { }
 
         backgroundFill_t Button::GetBackgroundFillReleased() {
             std::lock_guard<std::mutex> lock(mtx);
