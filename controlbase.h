@@ -134,16 +134,16 @@ namespace btui {
     };
 
     enum Align {
-        Start,
-        Middle,
-        End
+        AlignStart,
+        AlignMiddle,
+        AlignEnd
     };
 
     enum WrapStyle {
-        NoWrap,
-        WrapByChar,
-        WrapByWord,
-        WrapByWordAndStretch
+        WrapStyleNoWrap,
+        WrapStyleWrapByChar,
+        WrapStyleWrapByWord,
+        WrapStyleWrapByWordAndStretch
     };
 
     using backgroundFill_t = std::variant<std::monostate, BufferGridCell, uint32_t>;

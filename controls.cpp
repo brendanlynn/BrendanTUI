@@ -38,15 +38,15 @@ std::optional<CanvasIoInfo> GetCanvasIoInfo(btui::SizeU32 CanvasSize, btui::Size
     ioInfo.ioHeight = min(CanvasSize.height, PartitionSize.height);
 
     switch (HorizontalAlign) {
-    case btui::Align::Start:
+    case btui::AlignStart:
         ioInfo.readX = 0;
         ioInfo.writeX = 0;
         break;
-    case btui::Align::End:
+    case btui::AlignEnd:
         ioInfo.readX = CanvasSize.width - ioInfo.ioWidth;
         ioInfo.writeX = PartitionSize.width - ioInfo.ioWidth;
         break;
-    case btui::Align::Middle:
+    case btui::AlignMiddle:
         ioInfo.readX = CanvasSize.width / 2 - ioInfo.ioWidth / 2;
         ioInfo.writeX = PartitionSize.width / 2 - ioInfo.ioWidth / 2;
         break;
@@ -55,15 +55,15 @@ std::optional<CanvasIoInfo> GetCanvasIoInfo(btui::SizeU32 CanvasSize, btui::Size
     }
 
     switch (VerticalAlign) {
-    case btui::Align::Start:
+    case btui::AlignStart:
         ioInfo.readY = 0;
         ioInfo.writeY = 0;
         break;
-    case btui::Align::End:
+    case btui::AlignEnd:
         ioInfo.readY = CanvasSize.height - ioInfo.ioHeight;
         ioInfo.writeY = PartitionSize.height - ioInfo.ioHeight;
         break;
-    case btui::Align::Middle:
+    case btui::AlignMiddle:
         ioInfo.readY = CanvasSize.height / 2 - ioInfo.ioHeight / 2;
         ioInfo.writeY = PartitionSize.height / 2 - ioInfo.ioHeight / 2;
         break;
@@ -192,7 +192,7 @@ namespace btui {
         }
 
         Canvas::Canvas(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
-            : Control(FocusManager, InvalidateFunc), horizontalAlign(Align::Middle), verticalAlign(Align::Middle), backgroundFill(std::monostate{}) { }
+            : Control(FocusManager, InvalidateFunc), horizontalAlign(AlignMiddle), verticalAlign(AlignMiddle), backgroundFill(std::monostate{}) { }
 
         PointU32 Canvas::ControlCoordsToCanvasCoords(PointU32 ControlCoords) {
             std::lock_guard<std::mutex> lock(mtx);
@@ -309,7 +309,7 @@ namespace btui {
             std::vector<std::wstring> lines;
 
             switch (textWrapStyle) {
-            case WrapStyle::NoWrap:
+            case WrapStyleNoWrap:
                 {
                     std::wstringstream currentStream;
                     uint32_t size = 0;
@@ -335,7 +335,7 @@ namespace btui {
                     lines.push_back(currentStream.str());
                 }
                 break;
-            case WrapStyle::WrapByChar:
+            case WrapStyleWrapByChar:
                 {
                     std::wstringstream currentStream;
                     uint32_t size = 0;
@@ -354,8 +354,8 @@ namespace btui {
                     lines.push_back(currentStream.str());
                 }
                 break;
-            case WrapStyle::WrapByWord:
-            case WrapStyle::WrapByWordAndStretch:
+            case WrapStyleWrapByWord:
+            case WrapStyleWrapByWordAndStretch:
                 {
                     std::vector<bool> wrappedRecord;
                     std::wstringstream currentStream;
@@ -442,7 +442,7 @@ namespace btui {
                     lines.push_back(currentStream.str());
                     wrappedRecord.push_back(false);
 
-                    if (textWrapStyle == WrapStyle::WrapByWordAndStretch) {
+                    if (textWrapStyle == WrapStyleWrapByWordAndStretch) {
                         for (size_t lineIdx = 0; lineIdx < lines.size(); ++lineIdx) {
                             std::wstring& line = lines[lineIdx];
                             bool lineWasWrapped = wrappedRecord[lineIdx];
@@ -484,7 +484,7 @@ namespace btui {
                 break;
             }
 
-            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(SizeU32(Partition.width, lines.size()), Partition.size, textVerticalAlign, Align::Start);
+            std::optional<CanvasIoInfo> ioInfoO = GetCanvasIoInfo(SizeU32(Partition.width, lines.size()), Partition.size, textVerticalAlign, AlignStart);
             if (!ioInfoO.has_value()) return;
             CanvasIoInfo ioInfo = *ioInfoO;
 
@@ -496,7 +496,7 @@ namespace btui {
             uint32_t pXEnd = Partition.x + Partition.width;
             uint32_t pYEnd = Partition.y + Partition.height;
             switch (textHorizontalAlign) {
-            case Align::Start:
+            case AlignStart:
                 for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
                     const std::wstring& line = lines[rJ];
                     for (uint32_t lI = 0, wI = ioInfo.writeX; lI < line.size(); lI++, wI++) {
@@ -515,7 +515,7 @@ namespace btui {
                     }
                 }
                 break;
-            case Align::Middle:
+            case AlignMiddle:
                 for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
                     const std::wstring& line = lines[rJ];
                     uint32_t wIStart = Partition.width / 2 - line.size() / 2 + ioInfo.writeX;
@@ -541,7 +541,7 @@ namespace btui {
                     }
                 }
                 break;
-            case Align::End:
+            case AlignEnd:
                 for (uint32_t rJ = ioInfo.readY, wJ = ioInfo.writeY; rJ < rYEnd; rJ++, wJ++) {
                     const std::wstring& line = lines[rJ];
                     uint32_t wIStart = pXEnd - line.size();
@@ -579,7 +579,7 @@ namespace btui {
         }
 
         Label::Label(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
-            : Control(FocusManager, InvalidateFunc), text(L""), textBackcolor(0xFF000000), textForecolor(0xFFFFFFFF), textHorizontalAlign(Align::Middle), textVerticalAlign(Align::Middle), textWrapStyle(WrapStyle::NoWrap), backgroundFill(std::monostate{}) { }
+            : Control(FocusManager, InvalidateFunc), text(L""), textBackcolor(0xFF000000), textForecolor(0xFFFFFFFF), textHorizontalAlign(AlignMiddle), textVerticalAlign(AlignMiddle), textWrapStyle(WrapStyleNoWrap), backgroundFill(std::monostate{}) { }
 
         std::wstring Label::GetText() {
             std::lock_guard<std::mutex> lock(mtx);
@@ -696,22 +696,22 @@ namespace btui {
         void Button::OnMouseDown(const MouseDownControlInfo& Info) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            buttonState = ButtonState::Compressed;
+            buttonState = ButtonStateCompressed;
         }
         void Button::OnMouseUp(const MouseUpControlInfo& Info) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            buttonState = ButtonState::MouseOver;
+            buttonState = ButtonStateMouseOver;
         }
         void Button::OnMouseEnter(const MouseEnterControlInfo& Info) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            buttonState = ButtonState::MouseOver;
+            buttonState = ButtonStateMouseOver;
         }
         void Button::OnMouseExit(const MouseExitControlInfo& Info) {
             std::lock_guard<std::mutex> lock(mtx);
 
-            buttonState = ButtonState::Released;
+            buttonState = ButtonStateReleased;
         }
 
         ButtonState Button::GetButtonState() {
@@ -726,7 +726,7 @@ namespace btui {
         }
 
         Button::Button(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
-            : Label(FocusManager, InvalidateFunc), buttonState(ButtonState::Released), fillReleased(std::monostate{}), fillMouseover(std::monostate{}), fillCompressed(std::monostate{}) { }
+            : Label(FocusManager, InvalidateFunc), buttonState(ButtonStateReleased), fillReleased(std::monostate{}), fillMouseover(std::monostate{}), fillCompressed(std::monostate{}) { }
 
         backgroundFill_t Button::GetBackgroundFillReleased() {
             std::lock_guard<std::mutex> lock(mtx);

@@ -194,10 +194,10 @@ namespace btui {
     };
 
     enum WindowState {
-        Hidden,
-        Minimized,
-        Maximized,
-        Restored
+        WindowStateHidden,
+        WindowStateMinimized,
+        WindowStateMaximized,
+        WindowStateRestored
     };
 
     struct KeyPressInfo {

@@ -282,7 +282,7 @@ namespace btui {
             return 0;
         }
         case WM_SHOWWINDOW: {
-            WindowState newState = WParam ? GetWindowState() : WindowState::Hidden;
+            WindowState newState = WParam ? GetWindowState() : WindowStateHidden;
 
             if (newState != lastWindowState) {
                 WindowStateChangeInfo info;
@@ -441,7 +441,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false), backColor(0xFF000000) {
+        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowStateHidden), mouseContained(false), backColor(0xFF000000) {
 
         className = GenerateGuidStr();
 
@@ -545,16 +545,16 @@ namespace btui {
         WindowState winState;
         bool success = InvokeOnWindowThread([this, &winState]() {
             if (!::IsWindowVisible(hwnd))
-                winState = WindowState::Hidden;
+                winState = WindowStateHidden;
             else if (::IsIconic(hwnd))
-                winState = WindowState::Minimized;
+                winState = WindowStateMinimized;
             else if (::IsZoomed(hwnd))
-                winState = WindowState::Maximized;
+                winState = WindowStateMaximized;
             else
-                winState = WindowState::Restored;
+                winState = WindowStateRestored;
         });
 
-        return success ? winState : WindowState::Hidden;
+        return success ? winState : WindowStateHidden;
     }
     bool WindowBase::HasFocus() {
         bool hasFocus;
@@ -581,16 +581,16 @@ namespace btui {
     }
     void WindowBase::SetWindowState(WindowState State) {
         switch (State) {
-        case WindowState::Hidden:
+        case WindowStateHidden:
             Hide();
             break;
-        case WindowState::Minimized:
+        case WindowStateMinimized:
             Minimize();
             break;
-        case WindowState::Maximized:
+        case WindowStateMaximized:
             Maximize();
             break;
-        case WindowState::Restored:
+        case WindowStateRestored:
             Restore();
             break;
         }

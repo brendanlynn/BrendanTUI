@@ -123,9 +123,9 @@ namespace btui {
         };
 
         enum ButtonState {
-            Released,
-            MouseOver,
-            Compressed,
+            ButtonStateReleased,
+            ButtonStateMouseOver,
+            ButtonStateCompressed,
         };
 
         class Button : public Label {
