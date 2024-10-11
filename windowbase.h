@@ -356,6 +356,7 @@ namespace btui {
         std::atomic<bool> isRunning;
         std::queue<details::QueuedTask> taskQueue;
 
+        uint32_t backColor;
         bool mouseContained;
         BufferGridCell* lastBuffer;
         SizeU32 lastBufferSize;
@@ -429,6 +430,11 @@ namespace btui {
 
         std::wstring GetTitle();
         void SetTitle(std::wstring Title);
+
+        // The background of the window
+
+        uint32_t GetBackgroundColor();
+        void SetBackgroundColor(uint32_t Color);
     protected:
         // Client repaint (buffer should be in
         // row-major order).

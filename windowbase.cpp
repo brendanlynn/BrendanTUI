@@ -365,6 +365,8 @@ namespace btui {
             RECT clientRect;
             GetClientRect(Hwnd, &clientRect);
 
+            FillRect(hdc, &clientRect, CreateSolidBrush(ConvertToColorref(backColor)));
+
             // Calculate buffer size (in characters)
             uint32_t width = (clientRect.right - clientRect.left) / charWidth;
             uint32_t height = (clientRect.bottom - clientRect.top) / charHeight;
@@ -420,7 +422,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false) {
+        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowState::Hidden), mouseContained(false), backColor(0xFF000000) {
 
         className = GenerateGuidStr();
 
@@ -599,5 +601,16 @@ namespace btui {
         InvokeOnWindowThread([this, &Title]() {
             ::SetWindowTextW(hwnd, Title.c_str());
         });
+    }
+
+    uint32_t WindowBase::GetBackgroundColor() {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        return backColor;
+    }
+    void WindowBase::SetBackgroundColor(uint32_t Color) {
+        std::lock_guard<std::mutex> lock(mtx);
+
+        backColor = Color;
     }
 }
