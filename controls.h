@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "controlbase.h"
+#include "drawing.h"
 
 namespace btui {
     namespace controls {

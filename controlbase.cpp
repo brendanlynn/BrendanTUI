@@ -24,17 +24,4 @@ namespace btui {
             NewFocus->OnFocusGained(info);
         }
     }
-    void OverwriteWithBackgroundFill(BufferGridCell& Cell, const backgroundFill_t& BackgroundFill) {
-        switch (BackgroundFill.index()) {
-        case 1:
-            Cell = std::get<BufferGridCell>(BackgroundFill);
-            break;
-        case 2: {
-            uint32_t color = std::get<uint32_t>(BackgroundFill);
-            Cell.backcolor = OverlayColor(Cell.backcolor, color);
-            Cell.forecolor = OverlayColor(Cell.forecolor, color);
-            break;
-        }
-        }
-    }
 }

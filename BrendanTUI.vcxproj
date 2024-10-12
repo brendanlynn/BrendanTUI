@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="controls.h" />
+    <ClInclude Include="drawing.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="windowbase.h" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="controlbase.cpp" />
     <ClCompile Include="controls.cpp" />
+    <ClCompile Include="drawing.cpp" />
     <ClCompile Include="windowbase.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

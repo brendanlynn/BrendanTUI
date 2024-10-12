@@ -30,6 +30,9 @@
     <ClInclude Include="controls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="drawing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windowbase.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="drawing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

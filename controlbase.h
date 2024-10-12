@@ -134,21 +134,4 @@ namespace btui {
         virtual void OnMouseScroll(const MouseScrollControlInfo& Info) { };
         virtual void OnFileDrop(const FileDropControlInfo& Info) { };
     };
-
-    enum Align {
-        AlignStart,
-        AlignMiddle,
-        AlignEnd
-    };
-
-    enum WrapStyle {
-        WrapStyleNoWrap,
-        WrapStyleWrapByChar,
-        WrapStyleWrapByWord,
-        WrapStyleWrapByWordAndStretch
-    };
-
-    using backgroundFill_t = std::variant<std::monostate, BufferGridCell, uint32_t>;
-
-    void OverwriteWithBackgroundFill(BufferGridCell& Cell, const backgroundFill_t& BackgroundFill);
 }
