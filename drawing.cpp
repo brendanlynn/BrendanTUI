@@ -246,8 +246,12 @@ namespace btui {
         switch (TextHorizontalAlign) {
         case AlignStart:
             for (uint32_t rJ = mapInfo.inStartCoord, wJ = mapInfo.outStartCoord; rJ < rYEnd; rJ++, wJ++) {
+                if (wJ >= WindowBuffer.height) break;
+
                 const std::wstring& line = lines[rJ];
                 for (uint32_t lI = 0, wI = FrameRect.x; lI < line.size(); lI++, wI++) {
+                    if (wI >= WindowBuffer.width) break;
+
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                     cell.character = line[lI];
@@ -256,6 +260,8 @@ namespace btui {
                 }
                 if (BackgroundFill.index()) {
                     for (uint32_t wI = FrameRect.x + line.size(); wI < pXEnd; ++wI) {
+                        if (wI >= WindowBuffer.width) break;
+
                         BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                         OverwriteWithBackgroundFill(cell, BackgroundFill);
@@ -265,9 +271,13 @@ namespace btui {
             break;
         case AlignMiddle:
             for (uint32_t rJ = mapInfo.inStartCoord, wJ = mapInfo.outStartCoord; rJ < rYEnd; rJ++, wJ++) {
+                if (wJ >= WindowBuffer.height) break;
+
                 const std::wstring& line = lines[rJ];
                 uint32_t wIStart = FrameRect.width / 2 - line.size() / 2 + FrameRect.x;
                 for (uint32_t lI = 0, wI = FrameRect.x; lI < line.size(); lI++, wI++) {
+                    if (wI >= WindowBuffer.width) break;
+
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                     cell.character = line[lI];
@@ -277,11 +287,15 @@ namespace btui {
                 uint32_t wIEnd = wIStart + line.size();
                 if (BackgroundFill.index()) {
                     for (uint32_t wI = FrameRect.x; wI < wIStart; ++wI) {
+                        if (wI >= WindowBuffer.width) break;
+
                         BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                         OverwriteWithBackgroundFill(cell, BackgroundFill);
                     }
                     for (uint32_t wI = wIEnd; wI < pXEnd; ++wI) {
+                        if (wI >= WindowBuffer.width) break;
+
                         BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                         OverwriteWithBackgroundFill(cell, BackgroundFill);
@@ -291,9 +305,13 @@ namespace btui {
             break;
         case AlignEnd:
             for (uint32_t rJ = mapInfo.inStartCoord, wJ = mapInfo.outStartCoord; rJ < rYEnd; rJ++, wJ++) {
+                if (wJ >= WindowBuffer.height) break;
+
                 const std::wstring& line = lines[rJ];
                 uint32_t wIStart = pXEnd - line.size();
                 for (uint32_t lI = 0, wI = wIStart; lI < line.size(); lI++, wI++) {
+                    if (wI >= WindowBuffer.width) break;
+
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                     cell.character = line[lI];
@@ -302,6 +320,8 @@ namespace btui {
                 }
                 if (BackgroundFill.index()) {
                     for (uint32_t wI = FrameRect.x; wI < wIStart; ++wI) {
+                        if (wI >= WindowBuffer.width) break;
+
                         BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                         OverwriteWithBackgroundFill(cell, BackgroundFill);
@@ -312,12 +332,18 @@ namespace btui {
         }
         if (BackgroundFill.index()) {
             for (uint32_t wI = FrameRect.x; wI < pXEnd; ++wI) {
+                if (wI >= WindowBuffer.width) break;
+
                 for (uint32_t wJ = FrameRect.y; wJ < mapInfo.outStartCoord; ++wJ) {
+                    if (wJ >= WindowBuffer.height) break;
+
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                     OverwriteWithBackgroundFill(cell, BackgroundFill);
                 }
                 for (uint32_t wJ = wYEnd; wJ < pYEnd; ++wJ) {
+                    if (wJ >= WindowBuffer.height) break;
+
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
 
                     OverwriteWithBackgroundFill(cell, BackgroundFill);
