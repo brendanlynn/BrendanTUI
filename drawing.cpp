@@ -86,7 +86,7 @@ namespace btui {
                 std::wstringstream currentStream;
                 uint32_t size = 0;
                 for (wchar_t c : Text) {
-                    if (c == L'\n' || size >= FrameRect.width) {
+                    if (c == L'\n') {
                         lines.push_back(currentStream.str());
                         currentStream.str(L"");
                         size = 0;
@@ -96,6 +96,13 @@ namespace btui {
 
                     currentStream << c;
                     size++;
+
+                    if (size >= FrameRect.width) {
+                        lines.push_back(currentStream.str());
+                        currentStream.str(L"");
+                        size = 0;
+                        continue;
+                    }
                 }
                 lines.push_back(currentStream.str());
             }
@@ -269,7 +276,7 @@ namespace btui {
 
                 const std::wstring& line = lines[rJ];
                 uint32_t wIStart = FrameRect.width / 2 - line.size() / 2 + FrameRect.x;
-                for (uint32_t lI = 0, wI = FrameRect.x; lI < line.size(); lI++, wI++) {
+                for (uint32_t lI = 0, wI = wIStart; lI < line.size(); lI++, wI++) {
                     if (wI >= WindowBuffer.width) break;
 
                     BufferGridCell& cell = WindowBuffer.buffer[wJ * WindowBuffer.width + wI];
