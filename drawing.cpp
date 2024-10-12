@@ -69,7 +69,7 @@ namespace btui {
                 for (wchar_t c : Text) {
                     if (c == L'\n') {
                         lines.push_back(currentStream.str());
-                        currentStream.clear();
+                        currentStream.str(L"");
                         size = 0;
                         writing = true;
                         continue;
@@ -94,7 +94,7 @@ namespace btui {
                 for (wchar_t c : Text) {
                     if (c == L'\n' || size >= FrameRect.width) {
                         lines.push_back(currentStream.str());
-                        currentStream.clear();
+                        currentStream.str(L"");
                         size = 0;
                         continue;
                     }
@@ -125,7 +125,7 @@ namespace btui {
                             size = 0;
                             lines.push_back(currentStream.str());
                             wrappedRecord.push_back(false);
-                            currentStream.clear();
+                            currentStream.str(L"");
                             lastSpace = i;
                             continue;
                         }
@@ -136,7 +136,7 @@ namespace btui {
                         size = 0;
                         lines.push_back(currentStream.str());
                         wrappedRecord.push_back(false);
-                        currentStream.clear();
+                        currentStream.str(L"");
                         lastSpace = i;
                         lastWasWhitespace = true;
                         continue;
@@ -154,7 +154,7 @@ namespace btui {
                             size = 0;
                             lines.push_back(currentStream.str());
                             wrappedRecord.push_back(true);
-                            currentStream.clear();
+                            currentStream.str(L"");
                             lastSpace = i;
                             lastWasWhitespace = true;
                             continue;
@@ -178,7 +178,7 @@ namespace btui {
                         }
                         lines.push_back(currentStream.str());
                         wrappedRecord.push_back(true);
-                        currentStream.clear();
+                        currentStream.str(L"");
                         notFirst = false;
                         size = 0;
                         lastWasWhitespace = false;
