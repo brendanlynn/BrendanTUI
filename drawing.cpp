@@ -113,7 +113,7 @@ namespace btui {
                 std::vector<bool> wrappedRecord;
                 std::wstringstream currentStream;
                 uint32_t size = 0;
-                uint32_t lastSpace = 0;
+                uint32_t lastSpaceImAfter = 0;
                 bool notFirst = false;
                 bool lastWasWhitespace = true;
                 for (uint32_t i = 0; i < Text.size(); ++i) {
@@ -127,36 +127,36 @@ namespace btui {
                             lines.push_back(currentStream.str());
                             wrappedRecord.push_back(false);
                             currentStream.str(L"");
-                            lastSpace = i;
+                            lastSpaceImAfter = i + 1;
                             continue;
                         }
                         if (notFirst) currentStream << L' ';
-                        for (uint32_t j = lastSpace + 1; j < i; ++j)
+                        for (uint32_t j = lastSpaceImAfter; j < i; ++j)
                             currentStream << Text[j];
                         notFirst = false;
                         size = 0;
                         lines.push_back(currentStream.str());
                         wrappedRecord.push_back(false);
                         currentStream.str(L"");
-                        lastSpace = i;
+                        lastSpaceImAfter = i + 1;
                         lastWasWhitespace = true;
                         continue;
                     }
                     if (c == L' ') {
                         if (lastWasWhitespace) {
-                            lastSpace = i;
+                            lastSpaceImAfter = i + 1;
                             continue;
                         }
                         if (size >= FrameRect.width) {
                             if (notFirst) currentStream << L' ';
-                            for (uint32_t j = lastSpace + 1; j < i; ++j)
+                            for (uint32_t j = lastSpaceImAfter; j < i; ++j)
                                 currentStream << Text[j];
                             notFirst = false;
                             size = 0;
                             lines.push_back(currentStream.str());
                             wrappedRecord.push_back(true);
                             currentStream.str(L"");
-                            lastSpace = i;
+                            lastSpaceImAfter = i + 1;
                             lastWasWhitespace = true;
                             continue;
                         }
@@ -164,17 +164,17 @@ namespace btui {
                             currentStream << L' ';
                             size++;
                         }
-                        for (uint32_t j = lastSpace + 1; j < i; ++j)
+                        for (uint32_t j = lastSpaceImAfter; j < i; ++j)
                             currentStream << Text[j];
-                        size += i - lastSpace - 1;
-                        lastSpace = i;
+                        size += i - lastSpaceImAfter - 2;
+                        lastSpaceImAfter = i + 1;
                         lastWasWhitespace = true;
                         notFirst = true;
                         continue;
                     }
                     if (size >= FrameRect.width) {
                         if (!notFirst) {
-                            for (uint32_t j = lastSpace + 1; j < i; ++j)
+                            for (uint32_t j = lastSpaceImAfter; j < i; ++j)
                                 currentStream << Text[j];
                         }
                         lines.push_back(currentStream.str());
@@ -190,7 +190,7 @@ namespace btui {
                     lastWasWhitespace = false;
                 }
                 if (notFirst) currentStream << L' ';
-                for (uint32_t i = lastSpace + 1; i < Text.size(); ++i)
+                for (uint32_t i = lastSpaceImAfter; i < Text.size(); ++i)
                     currentStream << Text[i];
                 lines.push_back(currentStream.str());
                 wrappedRecord.push_back(false);
