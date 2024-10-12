@@ -108,6 +108,8 @@ namespace btui {
         std::function<void()> invalidateFunc;
 
     protected:
+        std::mutex mtx;
+
         Control(FocusManager* FocusManager, std::function<void()> InvalidateFunc)
             : focusManager(FocusManager), invalidateFunc(std::move(InvalidateFunc)) { }
 

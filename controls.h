@@ -22,8 +22,6 @@ namespace btui {
             SizeU32 lastPartSize;
 
         protected:
-            std::mutex mtx;
-
             PointU32 ControlCoordsToCanvasCoordsNoLock(PointU32 ControlCoords);
             PointU32 CanvasCoordsToControlCoordsNoLock(PointU32 CanvasCoords);
 
@@ -72,8 +70,6 @@ namespace btui {
             backgroundFill_t backgroundFill;
 
         protected:
-            std::mutex mtx;
-
             std::wstring GetTextNoLock();
             virtual void SetTextNoLock(std::wstring NewText);
 
