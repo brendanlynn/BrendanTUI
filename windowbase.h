@@ -372,6 +372,7 @@ namespace btui {
         std::mutex mtx;
         std::thread updateThread;
         std::atomic<bool> isRunning;
+        std::atomic<bool> isJoined;
         std::queue<details::QueuedTask> taskQueue;
 
         uint32_t backColor;

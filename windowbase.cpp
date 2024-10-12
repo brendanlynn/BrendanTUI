@@ -496,7 +496,7 @@ namespace btui {
     }
 
     WindowBase::WindowBase(HINSTANCE HInstance)
-        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowStateHidden), mouseContained(false), backColor(0xFF000000), cursorType(CursorTypeArrow) {
+        : hInstance(HInstance), isRunning(true), lastBuffer(0), lastBufferSize(0, 0), lastWindowState(WindowStateHidden), mouseContained(false), backColor(0xFF000000), cursorType(CursorTypeArrow), isJoined(false) {
 
         className = GenerateGuidStr();
 
@@ -507,8 +507,11 @@ namespace btui {
     WindowBase::~WindowBase() { Dispose(); }
 
     void WindowBase::Dispose() {
-        if (isRunning.exchange(false) && updateThread.joinable())
-            updateThread.join();
+        isRunning.store(false);
+        if (!isJoined.exchange(true)) {
+            if (updateThread.joinable())
+                updateThread.join();
+        }
     }
     bool WindowBase::Running() const {
         return isRunning.load();
