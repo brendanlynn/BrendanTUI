@@ -65,20 +65,14 @@ namespace btui {
             {
                 std::wstringstream currentStream;
                 uint32_t size = 0;
-                bool writing = true;
                 for (wchar_t c : Text) {
                     if (c == L'\n') {
                         lines.push_back(currentStream.str());
                         currentStream.str(L"");
                         size = 0;
-                        writing = true;
                         continue;
                     }
-                    if (size >= FrameRect.width) {
-                        writing = false;
-                        continue;
-                    }
-                    if (!writing) continue;
+                    if (size >= FrameRect.width) continue;
                     if (c == L'\r') continue;
 
                     currentStream << c;
