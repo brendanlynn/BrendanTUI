@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "framework.h"
 
 #include "drawing.h"
@@ -345,6 +345,125 @@ namespace btui {
 
                     OverwriteWithBackgroundFill(cell, BackgroundFill);
                 }
+            }
+        }
+    }
+    void DrawTableInFrame(BufferGrid WindowBuffer, RectU32 FrameRect, uint32_t ColumnCount, uint32_t RowCount, uint32_t* ColumnWidths, uint32_t* RowHeights, bool* HorizontalBorders, bool* VerticalBorders, uint32_t BorderBackcolor, uint32_t BorderForecolor, backgroundFill_t BackgroundFill) {
+        if (FrameRect.x >= WindowBuffer.width || FrameRect.y >= WindowBuffer.height) return;
+        if (FrameRect.x + FrameRect.width >= WindowBuffer.width) FrameRect.width = WindowBuffer.width - FrameRect.x/* - 1*/;
+        if (FrameRect.y + FrameRect.height >= WindowBuffer.height) FrameRect.height = WindowBuffer.height - FrameRect.y/* - 1*/;
+
+        if (!FrameRect.width) return;
+        if (!FrameRect.height) return;
+
+        uint32_t frameXMax = FrameRect.x + FrameRect.width;
+        uint32_t frameYMax = FrameRect.y + FrameRect.height;
+
+        auto getCell = [WindowBuffer](uint32_t X, uint32_t Y) -> BufferGridCell& {
+            return WindowBuffer.buffer[Y * WindowBuffer.width + X];
+        };
+
+        {
+            uint32_t y = FrameRect.y;
+            for (uint32_t rowBorderIdx = 0; rowBorderIdx <= RowCount; ++rowBorderIdx) {
+                uint32_t x = FrameRect.x;
+                for (uint32_t columnIdx = 0; columnIdx < ColumnCount; ++columnIdx) {
+                    if (x >= frameXMax) goto NextRow;
+                    {
+                        bool left = columnIdx && HorizontalBorders[rowBorderIdx * ColumnCount + columnIdx - 1];
+                        bool right = (columnIdx < ColumnCount) && HorizontalBorders[rowBorderIdx * ColumnCount + columnIdx];
+                        bool top = rowBorderIdx && VerticalBorders[(rowBorderIdx - 1) * (ColumnCount + 1) + columnIdx];
+                        bool bottom = (rowBorderIdx < RowCount) && VerticalBorders[(rowBorderIdx) * (ColumnCount + 1) + columnIdx];
+
+                        if (left || right || top || bottom)
+                            getCell(x, y) = BufferGridCell(CharFromConnections(left, right, top, bottom), BorderForecolor, BorderBackcolor);
+                        else
+                            OverwriteWithBackgroundFill(getCell(x, y), BackgroundFill);
+                    }
+                    ++x;
+                    uint32_t width = ColumnWidths[columnIdx];
+                    uint32_t cellXMax = x + width;
+                    if (HorizontalBorders[rowBorderIdx * ColumnCount + columnIdx]) {
+                        for (; x < cellXMax; ++x) {
+                            if (x >= frameXMax) goto NextRow;
+                            getCell(x, y) = BufferGridCell(L'─', BorderForecolor, BorderBackcolor);
+                        }
+                    }
+                    else {
+                        for (; x < cellXMax; ++x) {
+                            if (x >= frameXMax) goto NextRow;
+                            OverwriteWithBackgroundFill(getCell(x, y), BackgroundFill);
+                        }
+                    }
+                }
+                {
+                    bool left = ColumnCount && HorizontalBorders[rowBorderIdx * ColumnCount + ColumnCount - 1];
+                    bool right = (ColumnCount < ColumnCount) && HorizontalBorders[rowBorderIdx * ColumnCount + ColumnCount];
+                    bool top = rowBorderIdx && VerticalBorders[(rowBorderIdx - 1) * (ColumnCount + 1) + ColumnCount];
+                    bool bottom = (rowBorderIdx < RowCount) && VerticalBorders[(rowBorderIdx) * (ColumnCount + 1) + ColumnCount];
+                    
+                    if (left || right || top || bottom)
+                        getCell(x, y) = BufferGridCell(CharFromConnections(left, right, top, bottom), BorderForecolor, BorderBackcolor);
+                    else
+                        OverwriteWithBackgroundFill(getCell(x, y), BackgroundFill);
+                }
+            NextRow:
+                if (rowBorderIdx < RowCount) y += RowHeights[rowBorderIdx] + 1;
+                if (y >= frameYMax) break;
+            }
+        }
+
+        {
+            uint32_t x = FrameRect.x;
+            for (uint32_t columnBorderIdx = 0; columnBorderIdx <= ColumnCount; ++columnBorderIdx) {
+                uint32_t y = FrameRect.y + 1;
+                for (uint32_t rowIdx = 0; rowIdx < RowCount; ++rowIdx) {
+                    uint32_t height = RowHeights[rowIdx];
+                    uint32_t cellYMax = y + height;
+                    if (VerticalBorders[rowIdx * (ColumnCount + 1) + columnBorderIdx]) {
+                        for (; y < cellYMax; ++y) {
+                            if (y >= frameYMax) goto NextColumn;
+                            getCell(x, y) = BufferGridCell(L'│', BorderForecolor, BorderBackcolor);
+                        }
+                    }
+                    else {
+                        for (; y < cellYMax; ++y) {
+                            if (y >= frameYMax) goto NextColumn;
+                            OverwriteWithBackgroundFill(getCell(x, y), BackgroundFill);
+                        }
+                    }
+                    ++y;
+                }
+            NextColumn:
+                if (columnBorderIdx < ColumnCount) x += ColumnWidths[columnBorderIdx] + 1;
+                if (x >= frameXMax) break;
+            }
+        }
+
+        {
+            uint32_t x = FrameRect.x;
+            for (uint32_t columnIdx = 0; columnIdx < ColumnCount; ++columnIdx) {
+                ++x;
+                uint32_t width = ColumnWidths[columnIdx];
+                uint32_t endX = x + width;
+                for (; x < endX; ++x) {
+                    if (x >= frameXMax) goto EndLoop;
+                    uint32_t y = FrameRect.y;
+                    for (uint32_t rowIdx = 0; rowIdx < RowCount; ++rowIdx) {
+                        ++y;
+                        uint32_t height = RowHeights[rowIdx];
+                        uint32_t endY = y + height;
+                        for (; y < endY; ++y) {
+                            if (y >= frameYMax) goto NextVertical;
+                            OverwriteWithBackgroundFill(getCell(x, y), BackgroundFill);
+                        }
+                    }
+                NextVertical:
+                    continue;
+                }
+                continue;
+            EndLoop:
+                break;
             }
         }
     }

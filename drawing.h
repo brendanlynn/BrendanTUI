@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "windowbase.h"
 #include <cstdint>
@@ -141,4 +141,55 @@ namespace btui {
     void DrawCanvasInFrame(BufferGrid WindowBuffer, RectU32 FrameRect, BufferGrid Canvas, Align HorizontalAlign, Align VerticalAlign, backgroundFill_t BackgroundFill);
 
     void DrawTextInFrame(BufferGrid WindowBuffer, RectU32 FrameRect, const std::wstring& Text, uint32_t TextBackcolor, uint32_t TextForecolor, Align TextHorizontalAlign, Align TextVerticalAlign, WrapStyle TextWrapStyle, backgroundFill_t BackgroundFill);
+
+    static inline constexpr wchar_t CharFromConnections(bool Left, bool Right, bool Top, bool Bottom) {
+        if (Left)
+            if (Right)
+                if (Top)
+                    if (Bottom)
+                        return L'┼';
+                    else
+                        return L'┴';
+                else
+                    if (Bottom)
+                        return L'┬';
+                    else
+                        return L'─';
+            else
+                if (Top)
+                    if (Bottom)
+                        return L'┤';
+                    else
+                        return L'┘';
+                else
+                    if (Bottom)
+                        return L'┐';
+                    else
+                        return L'╴';
+        else
+            if (Right)
+                if (Top)
+                    if (Bottom)
+                        return L'├';
+                    else
+                        return L'└';
+                else
+                    if (Bottom)
+                        return L'┌';
+                    else
+                        return L'╶';
+            else
+                if (Top)
+                    if (Bottom)
+                        return L'│';
+                    else
+                        return L'╵';
+                else
+                    if (Bottom)
+                        return L'╷';
+                    else
+                        return L'·';
+    }
+
+    void DrawTableInFrame(BufferGrid WindowBuffer, RectU32 FrameRect, uint32_t ColumnCount, uint32_t RowCount, uint32_t* ColumnWidths, uint32_t* RowHeights, bool* HorizontalBorders, bool* VerticalBorders, uint32_t BorderBackcolor, uint32_t BorderForecolor, backgroundFill_t BackgroundFill);
 }
