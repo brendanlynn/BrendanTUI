@@ -140,16 +140,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="controls.h" />
     <ClInclude Include="drawing.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="windowbase.h" />
-    <ClInclude Include="controlbase.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="controlbase.cpp" />
-    <ClCompile Include="controls.cpp" />
     <ClCompile Include="drawing.cpp" />
     <ClCompile Include="windowbase.cpp" />
     <ClCompile Include="pch.cpp">
