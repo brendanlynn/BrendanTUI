@@ -213,17 +213,13 @@ namespace btui {
                         uint32_t perSpaceAddBase = rem / spaceCount;
                         uint32_t perSpaceAddBaseRem = rem % spaceCount;
 
-                        uint32_t remDis = spaceCount / perSpaceAddBaseRem;
-                        uint32_t remDisRem = spaceCount % perSpaceAddBaseRem;
-                        uint32_t remDisRemUntil = spaceCount - remDisRem;
-
                         std::wstringstream newLineStream;
                         uint32_t countOfSpacesSeenSoFar = 0;
                         for (wchar_t c : line) {
                             newLineStream << c;
                             if (c == L' ') {
                                 countOfSpacesSeenSoFar++;
-                                if (countOfSpacesSeenSoFar > remDisRemUntil)
+                                if (countOfSpacesSeenSoFar <= perSpaceAddBaseRem)
                                     newLineStream << L' ';
                                 for (uint32_t i = 0; i < perSpaceAddBase; ++i)
                                     newLineStream << L' ';
