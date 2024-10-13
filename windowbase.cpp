@@ -46,18 +46,18 @@ namespace btui {
         RegisterClass(&wc);
 
         hwnd = CreateWindowEx(
-            0,                       // Optional window styles
-            className.c_str(),       // Window class
-            L"",                     // Window title
-            WS_OVERLAPPEDWINDOW,     // Window style
-
-            // Position and size
-            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-            nullptr,                 // Parent window
-            nullptr,                 // Menu
-            hInstance,               // Instance handle
-            nullptr                  // Additional application data
+            0,                   // Optional window styles
+            className.c_str(),   // Window class
+            L"",                 // Window title
+            WS_OVERLAPPEDWINDOW, // Window style
+            CW_USEDEFAULT,       // Window initial X
+            CW_USEDEFAULT,       // Window initial Y
+            CW_USEDEFAULT,       // Window initial width
+            CW_USEDEFAULT,       // Window initial height
+            nullptr,             // Parent window
+            nullptr,             // Menu
+            hInstance,           // Instance handle
+            nullptr              // Additional application data
         );
 
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
@@ -363,8 +363,8 @@ namespace btui {
             POINT pt;
             DragQueryPoint(hDrop, &pt);
             ScreenToClient(hwnd, &pt);
-            dropInfo.mouseX = pt.x / charWidth; // Convert to character column
-            dropInfo.mouseY = pt.y / charHeight; // Convert to character row
+            dropInfo.mouseX = pt.x / charWidth;
+            dropInfo.mouseY = pt.y / charHeight;
 
             OnFileDrop(dropInfo);
             DragFinish(hDrop);
@@ -451,20 +451,20 @@ namespace btui {
 
             // Monospaced font for rendering
             HFONT hFont = CreateFontW(
-                charHeight,          // Character height
-                charWidth,           // Character width
-                0,                   // Escapement
-                0,                   // Orientation
-                FW_NORMAL,           // Weight (normal)
-                FALSE,               // Italic
-                FALSE,               // Underline
-                FALSE,               // Strikeout
-                ANSI_CHARSET,        // Character set
-                OUT_DEFAULT_PRECIS,  // Output precision
-                CLIP_DEFAULT_PRECIS, // Clipping precision
-                DEFAULT_QUALITY,     // Output quality
-                FIXED_PITCH | FF_MODERN,  // Pitch and family (monospaced)
-                L"Consolas"          // Font name
+                charHeight,              // Character height
+                charWidth,               // Character width
+                0,                       // Escapement
+                0,                       // Orientation
+                FW_NORMAL,               // Weight (normal)
+                FALSE,                   // Italic
+                FALSE,                   // Underline
+                FALSE,                   // Strikeout
+                ANSI_CHARSET,            // Character set
+                OUT_DEFAULT_PRECIS,      // Output precision
+                CLIP_DEFAULT_PRECIS,     // Clipping precision
+                DEFAULT_QUALITY,         // Output quality
+                FIXED_PITCH | FF_MODERN, // Pitch and family (monospaced)
+                L"Consolas"              // Font name
             );
             SelectObject(memDC, hFont);
 
