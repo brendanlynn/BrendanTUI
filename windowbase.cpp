@@ -5,8 +5,8 @@
 #include <combaseapi.h>
 #include <shellapi.h>
 
-constexpr uint32_t charWidth = 10; //placeholder
-constexpr uint32_t charHeight = 15; //placeholder
+constexpr uint32_t charWidth = 10;
+constexpr uint32_t charHeight = 15;
 
 std::wstring GenerateGuidStr() {
     GUID guid;
