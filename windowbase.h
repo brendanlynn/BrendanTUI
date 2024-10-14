@@ -385,8 +385,8 @@ namespace btui {
         CursorType cursorType;
 
         void UpdateFunction(bool* Initialized);
-        static __int64 __stdcall WindowProcStatic(HWND Hwnd, unsigned int Msg, unsigned __int64 WParam, __int64 LParam);
-        __int64 WindowProc(HWND Hwnd, unsigned int Msg, unsigned __int64 WParam, __int64 LParam);
+        static std::int64_t __stdcall WindowProcStatic(HWND Hwnd, unsigned int Msg, std::uint64_t WParam, std::int64_t LParam);
+        std::int64_t WindowProc(HWND Hwnd, unsigned int Msg, std::uint64_t WParam, std::int64_t LParam);
         void ProcessTasks();
         void CancelTasks();
         bool InvokeOnWindowThread(std::function<void()> Func);
