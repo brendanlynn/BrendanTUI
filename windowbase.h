@@ -9,7 +9,9 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <windows.h>
+
+typedef struct HWND__* HWND;
+typedef struct HINSTANCE__* HINSTANCE;
 
 namespace btui {
     static constexpr inline uint32_t FromRGB(uint8_t R, uint8_t G, uint8_t B) {
@@ -172,10 +174,10 @@ namespace btui {
             uint32_t r2EndX = Rect2.x + Rect2.width;
             uint32_t r2EndY = Rect2.y + Rect2.height;
 
-            out.x = max(Rect1.x, Rect2.x);
-            out.y = max(Rect1.y, Rect2.y);
-            uint32_t outEndX = min(r1EndX, r2EndX);
-            uint32_t outEndY = min(r1EndY, r2EndY);
+            out.x = std::max(Rect1.x, Rect2.x);
+            out.y = std::max(Rect1.y, Rect2.y);
+            uint32_t outEndX = std::min(r1EndX, r2EndX);
+            uint32_t outEndY = std::min(r1EndY, r2EndY);
 
             if (outEndX <= out.x || outEndY <= out.y) {
                 out.x = 0;
@@ -383,8 +385,8 @@ namespace btui {
         CursorType cursorType;
 
         void UpdateFunction(bool* Initialized);
-        static LRESULT CALLBACK WindowProcStatic(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
-        LRESULT WindowProc(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam);
+        static std::int64_t __stdcall WindowProcStatic(HWND Hwnd, unsigned int Msg, std::uint64_t WParam, std::int64_t LParam);
+        std::int64_t WindowProc(HWND Hwnd, unsigned int Msg, std::uint64_t WParam, std::int64_t LParam);
         void ProcessTasks();
         void CancelTasks();
         bool InvokeOnWindowThread(std::function<void()> Func);

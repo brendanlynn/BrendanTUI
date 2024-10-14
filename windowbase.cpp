@@ -4,6 +4,7 @@
 #include "windowbase.h"
 #include <combaseapi.h>
 #include <shellapi.h>
+#include <windows.h>
 
 constexpr uint32_t charWidth = 10;
 constexpr uint32_t charHeight = 15;
