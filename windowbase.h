@@ -9,7 +9,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <windows.h>
 
 namespace btui {
     static constexpr inline uint32_t FromRGB(uint8_t R, uint8_t G, uint8_t B) {
