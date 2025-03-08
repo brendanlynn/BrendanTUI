@@ -1,8 +1,9 @@
 ﻿#pragma once
 
-#include "windowbase.h"
 #include <cstdint>
 #include <variant>
+
+#include "windowbase.h"
 
 namespace btui {
     enum Align {

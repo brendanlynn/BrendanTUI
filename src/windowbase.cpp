@@ -1,7 +1,5 @@
-#include "pch.h"
-#include "framework.h"
+#include <brendantui/windowbase.h>
 
-#include "windowbase.h"
 #include <combaseapi.h>
 #include <shellapi.h>
 #include <windows.h>
