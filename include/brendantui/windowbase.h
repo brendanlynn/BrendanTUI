@@ -174,10 +174,10 @@ namespace btui {
             uint32_t r2EndX = Rect2.x + Rect2.width;
             uint32_t r2EndY = Rect2.y + Rect2.height;
 
-            out.x = std::max(Rect1.x, Rect2.x);
-            out.y = std::max(Rect1.y, Rect2.y);
-            uint32_t outEndX = std::min(r1EndX, r2EndX);
-            uint32_t outEndY = std::min(r1EndY, r2EndY);
+            out.x = Rect1.x > Rect2.x ? Rect1.x : Rect2.x;
+            out.y = Rect1.y > Rect2.y ? Rect1.y : Rect2.y;
+            uint32_t outEndX = r1EndX < r2EndX ? r1EndX : r2EndX;
+            uint32_t outEndY = r1EndY < r2EndY ? r1EndY : r2EndY;
 
             if (outEndX <= out.x || outEndY <= out.y) {
                 out.x = 0;

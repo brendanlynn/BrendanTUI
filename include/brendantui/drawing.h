@@ -50,7 +50,7 @@ namespace btui {
     constexpr inline CanvasIntoFrameMappingInfo1D MakeCanvasIntoFrameMappingInfo1D(uint32_t CanvasLength, uint32_t FrameLength, Align DimensionAlign) {
         CanvasIntoFrameMappingInfo1D ioInfo;
 
-        ioInfo.ioLength = std::min(CanvasLength, FrameLength);
+        ioInfo.ioLength = CanvasLength < FrameLength ? CanvasLength : FrameLength;
 
         switch (DimensionAlign) {
         case btui::AlignStart:
