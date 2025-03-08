@@ -37,12 +37,12 @@ inline COLORREF ConvertToColorref(uint32_t Color) {
 
 namespace btui {
     void WindowBase::UpdateFunction(bool* Initialized) {
-        WNDCLASSW wc = {};
+        WNDCLASSEXW wc = {};
         wc.hInstance = hInstance;
         wc.lpszClassName = className.c_str();
         wc.lpfnWndProc = WindowProcStaticPlaceholder;
 
-        RegisterClassW(&wc);
+        RegisterClassExW(&wc);
 
         hwnd = CreateWindowExW(
             0,                   // Optional window styles
