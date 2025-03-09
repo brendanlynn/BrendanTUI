@@ -9,7 +9,7 @@ CXXFLAGS = /std:c++20 /O2 /W4 /I include /EHsc
 LDFLAGS =
 
 # Libraries
-LIBS =
+LIBS = user32.lib gdi32.lib shell32.lib ole32.lib
 
 # Directories
 SRC_DIR = src
