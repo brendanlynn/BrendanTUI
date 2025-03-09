@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRENDANTUI_WINDOWBASE_H_
+#define BRENDANTUI_WINDOWBASE_H_
 
 #include <atomic>
 #include <chrono>
@@ -488,3 +489,5 @@ namespace btui {
         virtual void OnFileDrop(const FileDropInfo& Info) { };
     };
 }
+
+#endif // BRENDANTUI_WINDOWBASE_H_

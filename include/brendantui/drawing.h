@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef BRENDANTUI_DRAWING_H_
+#define BRENDANTUI_DRAWING_H_
 
 #include <cstdint>
 #include <variant>
@@ -194,3 +195,5 @@ namespace btui {
 
     void DrawTableInFrame(BufferGrid WindowBuffer, RectU32 FrameRect, uint32_t ColumnCount, uint32_t RowCount, uint32_t* ColumnWidths, uint32_t* RowHeights, bool* HorizontalBorders, bool* VerticalBorders, uint32_t BorderBackcolor, uint32_t BorderForecolor, backgroundFill_t BackgroundFill);
 }
+
+#endif // BRENDANTUI_DRAWING_H_
