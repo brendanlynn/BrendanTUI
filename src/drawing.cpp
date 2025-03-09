@@ -1,7 +1,4 @@
-﻿#include "pch.h"
-#include "framework.h"
-
-#include "drawing.h"
+﻿#include <brendantui/drawing.h>
 
 namespace btui {
     void OverwriteWithBackgroundFill(BufferGridCell& Cell, const backgroundFill_t& BackgroundFill) {

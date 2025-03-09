@@ -1,7 +1,5 @@
-#include "pch.h"
-#include "framework.h"
+#include <brendantui/windowbase.h>
 
-#include "windowbase.h"
 #include <combaseapi.h>
 #include <shellapi.h>
 #include <windows.h>
@@ -39,14 +37,14 @@ inline COLORREF ConvertToColorref(uint32_t Color) {
 
 namespace btui {
     void WindowBase::UpdateFunction(bool* Initialized) {
-        WNDCLASS wc = {};
+        WNDCLASSEXW wc = {};
         wc.hInstance = hInstance;
         wc.lpszClassName = className.c_str();
         wc.lpfnWndProc = WindowProcStaticPlaceholder;
 
-        RegisterClass(&wc);
+        RegisterClassExW(&wc);
 
-        hwnd = CreateWindowEx(
+        hwnd = CreateWindowExW(
             0,                   // Optional window styles
             className.c_str(),   // Window class
             L"",                 // Window title
@@ -352,12 +350,12 @@ namespace btui {
         case WM_DROPFILES: {
             HDROP hDrop = (HDROP)WParam;
             FileDropInfo dropInfo;
-            UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
+            UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, nullptr, 0);
             dropInfo.filePaths.resize(fileCount);
 
             for (UINT i = 0; i < fileCount; ++i) {
                 wchar_t filePath[MAX_PATH];
-                DragQueryFile(hDrop, i, filePath, MAX_PATH);
+                DragQueryFileW(hDrop, i, filePath, MAX_PATH);
                 dropInfo.filePaths[i] = filePath;
             }
 
